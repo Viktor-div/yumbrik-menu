@@ -277,7 +277,7 @@
 
                 const rawCategories = new Set();
 
-                // Парсим колонки: A=Category, B=Subcategory, C=Name, D=Volume, E=Price, F=Available
+                // Парсим колонки: A=Category, B=Subcategory, C=Name, D=Volume, E=Price, F=Available, G=Image
                 items = rows.map((row, index) => {
                     const c = row.c;
                     if (!c) return null;
@@ -294,7 +294,10 @@
                     }
 
                     const isAvailable = c[5] && c[5].v !== null ? Boolean(c[5].v) : true;
-
+                    
+                    // Считываем URL картинки из столбца G (индекс 6)
+                    const imageUrl = c[6] && c[6].v ? String(c[6].v).trim() : '';
+                    
                     if (name && isAvailable) {
                         rawCategories.add(categoryRaw);
                     }
@@ -310,7 +313,8 @@
                         description: volume ? `Объём / вес: ${volume}` : (subcategory ? `Категория: ${subcategory}` : ''),
                         available: isAvailable,
                         tags: subcategory ? [subcategory] : [],
-                        icon: CATEGORY_ICONS[categoryRaw.toLowerCase()] || 'fa-utensils'
+                        icon: CATEGORY_ICONS[categoryRaw.toLowerCase()] || 'fa-utensils',
+                        image: imageUrl
                     };
                 })
                 .filter(item => item && item.name !== '' && item.available === true);
@@ -397,20 +401,26 @@
         // Карточка (Сетка)
         function renderGridCard(item) {
             const qty = cart[item.id] || 0;
+            
+            // Если есть фото, выводим <img>, иначе иконку
+            const mediaHtml = item.image 
+                ? `<img src="${item.image}" alt="${item.name}" class="w-full h-44 rounded-xl object-cover mb-3 shadow-sm border border-stone-100" loading="lazy">`
+                : `<div class="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center text-brand-600 shrink-0 mb-2">
+                    <i class="fa-solid ${item.icon} text-lg"></i>
+                   </div>`;
+
             return `
                 <div class="bg-white rounded-2xl p-4 border border-stone-100 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
                     <div>
-                        <div class="flex items-start justify-between gap-2 mb-2">
-                            <div class="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center text-brand-600 shrink-0">
-                                <i class="fa-solid ${item.icon} text-lg"></i>
-                            </div>
-                            <div class="flex flex-wrap gap-1 justify-end">
+                        ${mediaHtml}
+                        <div class="flex items-start justify-between gap-2 mb-1">
+                            <h3 class="font-bold text-stone-900 text-base leading-snug">${item.name}</h3>
+                            <div class="flex flex-wrap gap-1 justify-end shrink-0">
                                 ${item.tags.map(tag => `
                                     <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">${tag}</span>
                                 `).join('')}
                             </div>
                         </div>
-                        <h3 class="font-bold text-stone-900 text-base leading-snug">${item.name}</h3>
                         <p class="text-xs text-stone-500 mt-1 leading-relaxed">${item.description}</p>
                     </div>
 
@@ -442,12 +452,17 @@
         // Карточка (Компактная)
         function renderCompactCard(item) {
             const qty = cart[item.id] || 0;
+            
+            const mediaHtml = item.image
+                ? `<img src="${item.image}" alt="${item.name}" class="w-10 h-10 rounded-lg object-cover shrink-0 shadow-sm border border-stone-100" loading="lazy">`
+                : `<div class="w-9 h-9 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 shrink-0">
+                    <i class="fa-solid ${item.icon} text-sm"></i>
+                   </div>`;
+
             return `
                 <div class="bg-white rounded-xl p-3 border border-stone-100 shadow-sm flex items-center justify-between gap-3">
                     <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-9 h-9 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 shrink-0">
-                            <i class="fa-solid ${item.icon} text-sm"></i>
-                        </div>
+                        ${mediaHtml}
                         <div class="min-w-0">
                             <h3 class="font-bold text-stone-900 text-xs truncate">${item.name}</h3>
                             <p class="text-[11px] text-stone-400 truncate">${item.volume ? item.volume + ' • ' : ''}${item.price.toFixed(2)} BYN</p>
@@ -582,13 +597,20 @@
                     totalItems += qty;
                     totalPrice += itemSum;
 
+                    const itemMedia = item.image
+                        ? `<img src="${item.image}" alt="${item.name}" class="w-8 h-8 rounded-lg object-cover shrink-0">`
+                        : `<div class="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 shrink-0"><i class="fa-solid ${item.icon} text-xs"></i></div>`;
+
                     html += `
                         <div class="py-2.5 flex items-center justify-between gap-3">
-                            <div>
-                                <h4 class="font-bold text-stone-900 text-sm">${item.name}</h4>
-                                <p class="text-xs text-stone-400">${item.price.toFixed(2)} BYN × ${qty}</p>
+                            <div class="flex items-center gap-2 min-w-0">
+                                ${itemMedia}
+                                <div class="min-w-0">
+                                    <h4 class="font-bold text-stone-900 text-sm truncate">${item.name}</h4>
+                                    <p class="text-xs text-stone-400">${item.price.toFixed(2)} BYN × ${qty}</p>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-3 shrink-0">
                                 <span class="font-bold text-stone-800 text-sm">${itemSum.toFixed(2)} BYN</span>
                                 <div class="flex items-center gap-1.5 bg-stone-100 p-1 rounded-lg">
                                     <button onclick="updateCart('${item.id}', -1); openCartModal();" class="w-6 h-6 rounded bg-white text-stone-700 flex items-center justify-center">
