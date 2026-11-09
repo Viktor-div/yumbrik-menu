@@ -258,12 +258,10 @@
 
     <!-- JavaScript Data and Logic -->
     <script>
-        // ID Google Таблицы Yumbrik_Menu
         const SHEET_ID = '1pn5-wnhJHQgRCowj3d5PM4uYDMRda78V5KTxj-Xc49o'; 
         const GID = '0'; 
 
         const SHEET_NAME = encodeURIComponent('Menu');
-        
         const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&tq=select%20*&sheet=${SHEET_NAME}`;
         
         let items = [];
@@ -296,28 +294,36 @@
 
                 const rawCategories = new Set();
 
-                // Разбираем колонки: A=0 (Category), B=1 (Subcategory), C=2 (Name), D=3 (Volume), E=4 (Price), F=5 (Available), G=6 (Image), H=7 (Ingredients/Состав)
+                // Чтение ячейки вне зависимости от того, число это или объект
+                const getVal = (c, idx) => {
+                    if (!c || !c[idx]) return '';
+                    const cell = c[idx];
+                    if (cell.f !== undefined && cell.f !== null) return String(cell.f).trim();
+                    if (cell.v !== undefined && cell.v !== null) return String(cell.v).trim();
+                    return '';
+                };
+
                 items = rows.map((row, index) => {
                     const c = row.c;
                     if (!c) return null;
 
-                    const categoryRaw = c[0] && c[0].v ? String(c[0].v).trim() : 'Другое';
-                    const subcategory = c[1] && c[1].v ? String(c[1].v).trim() : '';
-                    const name = c[2] && c[2].v ? String(c[2].v).trim() : '';
-                    const volume = c[3] && c[3].v ? String(c[3].v).trim() : '';
+                    const categoryRaw = getVal(c, 0) || 'Другое';
+                    const subcategory = getVal(c, 1);
+                    const name = getVal(c, 2);
+                    const volume = getVal(c, 3);
                     
+                    const priceRaw = getVal(c, 4);
                     let priceVal = 0;
-                    if (c[4] && c[4].v !== null) {
-                        const parsed = parseFloat(String(c[4].v).replace(/[^0-9.,]/g, '').replace(',', '.'));
+                    if (priceRaw) {
+                        const parsed = parseFloat(priceRaw.replace(/[^0-9.,]/g, '').replace(',', '.'));
                         priceVal = isNaN(parsed) ? 0 : parsed;
                     }
 
-                    const isAvailable = c[5] && c[5].v !== null ? Boolean(c[5].v) : true;
+                    const availRaw = getVal(c, 5).toUpperCase();
+                    const isAvailable = availRaw === 'FALSE' ? false : true;
                     
-                    const imageUrl = c[6] && c[6].v ? String(c[6].v).trim() : '';
-                    
-                    // Считываем состав из колонки H (индекс 7), если заполнено
-                    const ingredients = c[7] && c[7].v ? String(c[7].v).trim() : '';
+                    const imageUrl = getVal(c, 6);
+                    const ingredients = getVal(c, 7);
                     
                     if (name && isAvailable) {
                         rawCategories.add(categoryRaw);
@@ -341,7 +347,6 @@
                 })
                 .filter(item => item && item.name !== '' && item.available === true);
 
-                // Динамически выстраиваем кнопки категорий
                 categories = [{ id: 'all', name: 'Все', icon: 'fa-border-all' }];
                 rawCategories.forEach(cat => {
                     const catLower = cat.toLowerCase();
@@ -359,7 +364,6 @@
             }
         }
 
-        // Отрисовка полосы категорий
         function renderCategories() {
             const categoriesNav = document.getElementById('categories-nav');
             if (!categoriesNav) return;
@@ -377,7 +381,6 @@
             `).join('');
         }
 
-        // Фильтрация элементов
         function getFilteredItems() {
             return items.filter(item => {
                 const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
@@ -389,7 +392,6 @@
             });
         }
 
-        // Отрисовка списка блюд
         function renderMenu() {
             const menuContainer = document.getElementById('menu-container');
             const emptyState = document.getElementById('empty-state');
@@ -421,7 +423,6 @@
             }
         }
 
-        // Карточка (Сетка)
         function renderGridCard(item) {
             const qty = cart[item.id] || 0;
             
@@ -471,7 +472,6 @@
             `;
         }
 
-        // Карточка (Компактная)
         function renderCompactCard(item) {
             const qty = cart[item.id] || 0;
             
@@ -512,7 +512,6 @@
             `;
         }
 
-        // Открытие карточки с составом блюда
         function openItemModal(itemId) {
             const item = items.find(i => i.id === itemId);
             if (!item) return;
@@ -524,7 +523,6 @@
 
             const qty = cart[item.id] || 0;
 
-            // Формируем теги
             tagsContainer.innerHTML = `
                 <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 text-brand-800 border border-brand-200/60">${item.categoryTitle}</span>
                 ${item.subcategory ? `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">${item.subcategory}</span>` : ''}
@@ -537,7 +535,6 @@
                      <i class="fa-solid ${item.icon} text-5xl"></i>
                    </div>`;
 
-            // Если состав в столбце H не указан, берем подкатегорию или стандартную фразу
             const compText = item.ingredients 
                 ? item.ingredients 
                 : (item.subcategory ? `Категория: ${item.subcategory}` : 'Состав и детали уточняйте у бариста при заказе.');
@@ -590,7 +587,6 @@
             if (modal.firstElementChild) modal.firstElementChild.classList.add('translate-y-full');
         }
 
-        // Управление выбором категории и поиском
         function setCategory(catId) {
             activeCategory = catId;
             renderCategories();
@@ -631,7 +627,6 @@
             renderMenu();
         }
 
-        // Управление корзиной
         function updateCart(itemId, change) {
             const currentQty = cart[itemId] || 0;
             const newQty = currentQty + change;
@@ -766,7 +761,6 @@
             return five;
         }
 
-        // Запуск загрузки
         document.addEventListener('DOMContentLoaded', fetchMenuFromGoogleSheet);
     </script>
 </body>
