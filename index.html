@@ -145,6 +145,24 @@
         </button>
     </div>
 
+    <!-- Item Detail Modal (Состав и фото блюда) -->
+    <div id="item-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl transform translate-y-full sm:translate-y-0 transition-transform duration-300 max-h-[90vh] flex flex-col overflow-y-auto">
+            <div class="flex justify-between items-start mb-3">
+                <div class="flex flex-wrap gap-1.5" id="item-modal-tags">
+                    <!-- Теги заменяются через JS -->
+                </div>
+                <button onclick="closeItemModal()" class="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center text-stone-500 hover:bg-stone-200 shrink-0 ml-auto">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="item-modal-body" class="space-y-4">
+                <!-- Содержимое рендерится через JS -->
+            </div>
+        </div>
+    </div>
+
     <!-- Cafe Info Modal -->
     <div id="info-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 pointer-events-none transition-opacity duration-300">
         <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl transform translate-y-full sm:translate-y-0 transition-transform duration-300 max-h-[85vh] overflow-y-auto">
@@ -245,7 +263,8 @@
         const GID = '0'; 
 
         const SHEET_NAME = encodeURIComponent('Menu');
-        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
+        
+        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&tq=select%20*&sheet=${SHEET_NAME}`;
         
         let items = [];
         let categories = [{ id: 'all', name: 'Все', icon: 'fa-border-all' }];
@@ -277,7 +296,7 @@
 
                 const rawCategories = new Set();
 
-                // Парсим колонки: A=Category, B=Subcategory, C=Name, D=Volume, E=Price, F=Available, G=Image
+                // Разбираем колонки: A=0 (Category), B=1 (Subcategory), C=2 (Name), D=3 (Volume), E=4 (Price), F=5 (Available), G=6 (Image), H=7 (Composition/Состав)
                 items = rows.map((row, index) => {
                     const c = row.c;
                     if (!c) return null;
@@ -295,8 +314,10 @@
 
                     const isAvailable = c[5] && c[5].v !== null ? Boolean(c[5].v) : true;
                     
-                    // Считываем URL картинки из столбца G (индекс 6)
                     const imageUrl = c[6] && c[6].v ? String(c[6].v).trim() : '';
+                    
+                    // Считываем состав из колонки H (индекс 7), если заполнено
+                    const composition = c[7] && c[7].v ? String(c[7].v).trim() : '';
                     
                     if (name && isAvailable) {
                         rawCategories.add(categoryRaw);
@@ -310,6 +331,7 @@
                         subcategory: subcategory,
                         volume: volume,
                         price: priceVal,
+                        composition: composition,
                         description: volume ? `Объём / вес: ${volume}` : (subcategory ? `Категория: ${subcategory}` : ''),
                         available: isAvailable,
                         tags: subcategory ? [subcategory] : [],
@@ -361,7 +383,8 @@
                 const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
                 const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                                       item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                      item.subcategory.toLowerCase().includes(searchQuery.toLowerCase());
+                                      item.subcategory.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                      item.composition.toLowerCase().includes(searchQuery.toLowerCase());
                 return matchesCategory && matchesSearch;
             });
         }
@@ -402,10 +425,9 @@
         function renderGridCard(item) {
             const qty = cart[item.id] || 0;
             
-            // Если есть фото, выводим <img>, иначе иконку
             const mediaHtml = item.image 
-                ? `<img src="${item.image}" alt="${item.name}" class="w-full h-44 rounded-xl object-cover mb-3 shadow-sm border border-stone-100" loading="lazy">`
-                : `<div class="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center text-brand-600 shrink-0 mb-2">
+                ? `<img src="${item.image}" alt="${item.name}" class="w-full h-44 rounded-xl object-cover mb-3 shadow-sm border border-stone-100 cursor-pointer" loading="lazy" onclick="openItemModal('${item.id}')">`
+                : `<div class="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center text-brand-600 shrink-0 mb-2 cursor-pointer" onclick="openItemModal('${item.id}')">
                     <i class="fa-solid ${item.icon} text-lg"></i>
                    </div>`;
 
@@ -414,14 +436,14 @@
                     <div>
                         ${mediaHtml}
                         <div class="flex items-start justify-between gap-2 mb-1">
-                            <h3 class="font-bold text-stone-900 text-base leading-snug">${item.name}</h3>
+                            <h3 onclick="openItemModal('${item.id}')" class="font-bold text-stone-900 text-base leading-snug cursor-pointer hover:text-brand-600 transition-colors">${item.name}</h3>
                             <div class="flex flex-wrap gap-1 justify-end shrink-0">
                                 ${item.tags.map(tag => `
                                     <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">${tag}</span>
                                 `).join('')}
                             </div>
                         </div>
-                        <p class="text-xs text-stone-500 mt-1 leading-relaxed">${item.description}</p>
+                        <p onclick="openItemModal('${item.id}')" class="text-xs text-stone-500 mt-1 leading-relaxed cursor-pointer line-clamp-2">${item.description}</p>
                     </div>
 
                     <div class="mt-4 pt-3 border-t border-stone-50 flex items-center justify-between">
@@ -431,16 +453,16 @@
                         
                         ${qty > 0 ? `
                             <div class="flex items-center gap-2 bg-stone-100 p-1 rounded-xl">
-                                <button onclick="updateCart('${item.id}', -1)" class="w-7 h-7 rounded-lg bg-white text-stone-700 shadow-sm flex items-center justify-center active:scale-95 transition-transform">
+                                <button onclick="event.stopPropagation(); updateCart('${item.id}', -1)" class="w-7 h-7 rounded-lg bg-white text-stone-700 shadow-sm flex items-center justify-center active:scale-95 transition-transform">
                                     <i class="fa-solid fa-minus text-xs"></i>
                                 </button>
                                 <span class="text-xs font-bold w-4 text-center text-stone-800">${qty}</span>
-                                <button onclick="updateCart('${item.id}', 1)" class="w-7 h-7 rounded-lg bg-brand-500 text-white shadow-sm flex items-center justify-center active:scale-95 transition-transform">
+                                <button onclick="event.stopPropagation(); updateCart('${item.id}', 1)" class="w-7 h-7 rounded-lg bg-brand-500 text-white shadow-sm flex items-center justify-center active:scale-95 transition-transform">
                                     <i class="fa-solid fa-plus text-xs"></i>
                                 </button>
                             </div>
                         ` : `
-                            <button onclick="updateCart('${item.id}', 1)" class="px-3 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-semibold shadow-sm active:scale-95 transition-all flex items-center gap-1.5">
+                            <button onclick="event.stopPropagation(); updateCart('${item.id}', 1)" class="px-3 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-semibold shadow-sm active:scale-95 transition-all flex items-center gap-1.5">
                                 <i class="fa-solid fa-plus text-xs"></i> Добавить
                             </button>
                         `}
@@ -454,17 +476,17 @@
             const qty = cart[item.id] || 0;
             
             const mediaHtml = item.image
-                ? `<img src="${item.image}" alt="${item.name}" class="w-10 h-10 rounded-lg object-cover shrink-0 shadow-sm border border-stone-100" loading="lazy">`
-                : `<div class="w-9 h-9 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 shrink-0">
+                ? `<img src="${item.image}" alt="${item.name}" class="w-10 h-10 rounded-lg object-cover shrink-0 shadow-sm border border-stone-100 cursor-pointer" loading="lazy" onclick="openItemModal('${item.id}')">`
+                : `<div class="w-9 h-9 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 shrink-0 cursor-pointer" onclick="openItemModal('${item.id}')">
                     <i class="fa-solid ${item.icon} text-sm"></i>
                    </div>`;
 
             return `
                 <div class="bg-white rounded-xl p-3 border border-stone-100 shadow-sm flex items-center justify-between gap-3">
-                    <div class="flex items-center gap-3 min-w-0">
+                    <div class="flex items-center gap-3 min-w-0 cursor-pointer flex-1" onclick="openItemModal('${item.id}')">
                         ${mediaHtml}
                         <div class="min-w-0">
-                            <h3 class="font-bold text-stone-900 text-xs truncate">${item.name}</h3>
+                            <h3 class="font-bold text-stone-900 text-xs truncate hover:text-brand-600 transition-colors">${item.name}</h3>
                             <p class="text-[11px] text-stone-400 truncate">${item.volume ? item.volume + ' • ' : ''}${item.price.toFixed(2)} BYN</p>
                         </div>
                     </div>
@@ -472,22 +494,100 @@
                     <div>
                         ${qty > 0 ? `
                             <div class="flex items-center gap-1.5 bg-stone-100 p-1 rounded-lg">
-                                <button onclick="updateCart('${item.id}', -1)" class="w-6 h-6 rounded bg-white text-stone-700 flex items-center justify-center">
+                                <button onclick="event.stopPropagation(); updateCart('${item.id}', -1)" class="w-6 h-6 rounded bg-white text-stone-700 flex items-center justify-center">
                                     <i class="fa-solid fa-minus text-[10px]"></i>
                                 </button>
                                 <span class="text-xs font-bold w-4 text-center">${qty}</span>
-                                <button onclick="updateCart('${item.id}', 1)" class="w-6 h-6 rounded bg-brand-500 text-white flex items-center justify-center">
+                                <button onclick="event.stopPropagation(); updateCart('${item.id}', 1)" class="w-6 h-6 rounded bg-brand-500 text-white flex items-center justify-center">
                                     <i class="fa-solid fa-plus text-[10px]"></i>
                                 </button>
                             </div>
                         ` : `
-                            <button onclick="updateCart('${item.id}', 1)" class="w-8 h-8 rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-600 flex items-center justify-center transition-colors">
+                            <button onclick="event.stopPropagation(); updateCart('${item.id}', 1)" class="w-8 h-8 rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-600 flex items-center justify-center transition-colors">
                                 <i class="fa-solid fa-plus text-xs"></i>
                             </button>
                         `}
                     </div>
                 </div>
             `;
+        }
+
+        // Открытие карточки с составом блюда
+        function openItemModal(itemId) {
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+
+            const modal = document.getElementById('item-modal');
+            const tagsContainer = document.getElementById('item-modal-tags');
+            const bodyContainer = document.getElementById('item-modal-body');
+            if (!modal || !bodyContainer) return;
+
+            const qty = cart[item.id] || 0;
+
+            // Формируем теги
+            tagsContainer.innerHTML = `
+                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 text-brand-800 border border-brand-200/60">${item.categoryTitle}</span>
+                ${item.subcategory ? `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">${item.subcategory}</span>` : ''}
+                ${item.volume ? `<span class="px-2.5 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-600">${item.volume}</span>` : ''}
+            `;
+
+            const mediaHtml = item.image 
+                ? `<img src="${item.image}" alt="${item.name}" class="w-full h-56 rounded-2xl object-cover shadow-sm border border-stone-100 mb-3">`
+                : `<div class="w-full h-40 rounded-2xl bg-brand-50 flex items-center justify-center text-brand-600 mb-3">
+                     <i class="fa-solid ${item.icon} text-5xl"></i>
+                   </div>`;
+
+            // Если состав в столбце H не указан, берем подкатегорию или стандартную фразу
+            const compText = item.composition 
+                ? item.composition 
+                : (item.subcategory ? `Категория: ${item.subcategory}` : 'Состав и детали уточняйте у бариста при заказе.');
+
+            bodyContainer.innerHTML = `
+                ${mediaHtml}
+                <div>
+                    <h3 class="font-serif font-bold text-2xl text-stone-900 leading-tight">${item.name}</h3>
+                    <div class="font-extrabold text-brand-600 text-xl mt-1">${item.price.toFixed(2)} BYN</div>
+                </div>
+
+                <div class="bg-stone-50 rounded-2xl p-4 border border-stone-100 mt-2">
+                    <h4 class="font-bold text-xs uppercase tracking-wider text-stone-400 mb-1.5 flex items-center gap-1.5">
+                        <i class="fa-solid fa-wheat-awn text-brand-500"></i> Состав и описание
+                    </h4>
+                    <p class="text-sm text-stone-700 leading-relaxed whitespace-pre-line">${compText}</p>
+                </div>
+
+                <div class="pt-2 flex items-center justify-between gap-4 mt-4 border-t border-stone-100">
+                    <div>
+                        <span class="text-xs text-stone-400">В вашем заказе:</span>
+                        <div class="text-stone-800 font-bold text-sm">${qty > 0 ? `${qty} шт.` : 'Пока не добавлено'}</div>
+                    </div>
+                    ${qty > 0 ? `
+                        <div class="flex items-center gap-3 bg-stone-100 p-1.5 rounded-2xl">
+                            <button onclick="updateCart('${item.id}', -1); openItemModal('${item.id}');" class="w-9 h-9 rounded-xl bg-white text-stone-700 shadow-sm flex items-center justify-center active:scale-95 transition-transform">
+                                <i class="fa-solid fa-minus text-sm"></i>
+                            </button>
+                            <span class="text-sm font-bold w-6 text-center text-stone-800">${qty}</span>
+                            <button onclick="updateCart('${item.id}', 1); openItemModal('${item.id}');" class="w-9 h-9 rounded-xl bg-brand-500 text-white shadow-sm flex items-center justify-center active:scale-95 transition-transform">
+                                <i class="fa-solid fa-plus text-sm"></i>
+                            </button>
+                        </div>
+                    ` : `
+                        <button onclick="updateCart('${item.id}', 1); openItemModal('${item.id}');" class="px-5 py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-2xl text-xs font-bold shadow-md active:scale-95 transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-plus text-xs"></i> Добавить в заказ
+                        </button>
+                    `}
+                </div>
+            `;
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            if (modal.firstElementChild) modal.firstElementChild.classList.remove('translate-y-full');
+        }
+
+        function closeItemModal() {
+            const modal = document.getElementById('item-modal');
+            if (!modal) return;
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            if (modal.firstElementChild) modal.firstElementChild.classList.add('translate-y-full');
         }
 
         // Управление выбором категории и поиском
