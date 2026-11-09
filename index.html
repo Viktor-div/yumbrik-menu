@@ -296,7 +296,7 @@
 
                 const rawCategories = new Set();
 
-                // Разбираем колонки: A=0 (Category), B=1 (Subcategory), C=2 (Name), D=3 (Volume), E=4 (Price), F=5 (Available), G=6 (Image), H=7 (Composition/Состав)
+                // Разбираем колонки: A=0 (Category), B=1 (Subcategory), C=2 (Name), D=3 (Volume), E=4 (Price), F=5 (Available), G=6 (Image), H=7 (Ingredients/Состав)
                 items = rows.map((row, index) => {
                     const c = row.c;
                     if (!c) return null;
@@ -317,7 +317,7 @@
                     const imageUrl = c[6] && c[6].v ? String(c[6].v).trim() : '';
                     
                     // Считываем состав из колонки H (индекс 7), если заполнено
-                    const composition = c[7] && c[7].v ? String(c[7].v).trim() : '';
+                    const ingredients = c[7] && c[7].v ? String(c[7].v).trim() : '';
                     
                     if (name && isAvailable) {
                         rawCategories.add(categoryRaw);
@@ -331,7 +331,7 @@
                         subcategory: subcategory,
                         volume: volume,
                         price: priceVal,
-                        composition: composition,
+                        ingredients: ingredients,
                         description: volume ? `Объём / вес: ${volume}` : (subcategory ? `Категория: ${subcategory}` : ''),
                         available: isAvailable,
                         tags: subcategory ? [subcategory] : [],
@@ -384,7 +384,7 @@
                 const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                                       item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                                       item.subcategory.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                      item.composition.toLowerCase().includes(searchQuery.toLowerCase());
+                                      item.ingredients.toLowerCase().includes(searchQuery.toLowerCase());
                 return matchesCategory && matchesSearch;
             });
         }
@@ -538,8 +538,8 @@
                    </div>`;
 
             // Если состав в столбце H не указан, берем подкатегорию или стандартную фразу
-            const compText = item.composition 
-                ? item.composition 
+            const compText = item.ingredients 
+                ? item.ingredients 
                 : (item.subcategory ? `Категория: ${item.subcategory}` : 'Состав и детали уточняйте у бариста при заказе.');
 
             bodyContainer.innerHTML = `
