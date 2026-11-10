@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Playfair Display & Plus Jakarta Sans -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -37,13 +37,8 @@
         }
     </script>
     <style>
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="font-sans text-stone-800 bg-stone-50 min-h-full pb-24 selection:bg-brand-200">
@@ -63,7 +58,6 @@
                 <button id="toggle-view-btn" onclick="toggleView()" class="w-9 h-9 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700 flex items-center justify-center transition-colors" title="Сменить вид">
                     <i id="view-icon" class="fa-solid fa-list text-sm"></i>
                 </button>
-                
                 <button onclick="openInfoModal()" class="w-9 h-9 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700 flex items-center justify-center transition-colors" title="Информация">
                     <i class="fa-solid fa-circle-info text-sm"></i>
                 </button>
@@ -80,33 +74,25 @@
                 </button>
             </div>
 
-            <nav class="flex gap-2 overflow-x-auto no-scrollbar py-0.5 -mx-4 px-4 scroll-smooth" id="categories-nav">
-                <!-- Категории рендерятся через JS -->
-            </nav>
+            <nav class="flex gap-2 overflow-x-auto no-scrollbar py-0.5 -mx-4 px-4 scroll-smooth" id="categories-nav"></nav>
         </div>
     </header>
 
     <!-- Main Content -->
     <main class="max-w-3xl mx-auto px-4 mt-4">
-        
-        <!-- Dynamic Specials Carousel Slider -->
+        <!-- Banner Slider -->
         <div id="banner-wrapper" class="mb-6 relative">
-            <div id="banner-container" class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar rounded-2xl shadow-lg border border-stone-800/10 scroll-smooth">
-                <!-- Слайды рендерятся через JS -->
-            </div>
-            <!-- Dots indicator -->
+            <div id="banner-container" class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar rounded-2xl shadow-lg border border-stone-800/10 scroll-smooth"></div>
             <div id="banner-dots" class="flex justify-center gap-1.5 mt-2"></div>
         </div>
 
-        <!-- Section Title & Item Count -->
+        <!-- Title & Counter -->
         <div class="flex items-center justify-between mb-4">
             <h2 id="current-category-title" class="font-serif text-xl font-bold text-stone-800">Все меню</h2>
             <span id="items-count" class="text-xs font-semibold px-2.5 py-1 bg-stone-200/60 text-stone-600 rounded-full">0 позиций</span>
         </div>
 
-        <div id="menu-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 transition-all">
-            <!-- Элементы рендерятся через JS -->
-        </div>
+        <div id="menu-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 transition-all"></div>
 
         <div id="empty-state" class="hidden py-16 text-center">
             <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-stone-100 flex items-center justify-center text-stone-400">
@@ -124,9 +110,7 @@
     <div id="cart-bar" class="fixed bottom-4 left-4 right-4 max-w-xl mx-auto z-40 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
         <button onclick="openCartModal()" class="w-full bg-brand-900 hover:bg-stone-900 text-white p-4 rounded-2xl shadow-xl flex items-center justify-between pointer-events-auto border border-brand-800">
             <div class="flex items-center gap-3">
-                <div id="cart-badge" class="w-8 h-8 rounded-full bg-brand-500 text-white text-xs font-bold flex items-center justify-center shadow">
-                    0
-                </div>
+                <div id="cart-badge" class="w-8 h-8 rounded-full bg-brand-500 text-white text-xs font-bold flex items-center justify-center shadow">0</div>
                 <span class="font-medium text-sm">Ваш выбор</span>
             </div>
             <div class="flex items-center gap-2">
@@ -150,7 +134,7 @@
         </div>
     </div>
 
-    <!-- Cafe Info Modal -->
+    <!-- Info Modal -->
     <div id="info-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 pointer-events-none transition-opacity duration-300">
         <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl transform translate-y-full sm:translate-y-0 transition-transform duration-300 max-h-[85vh] overflow-y-auto">
             <div class="flex justify-between items-start mb-4">
@@ -165,7 +149,6 @@
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-
             <div class="space-y-4 text-sm text-stone-600 border-t border-stone-100 pt-4">
                 <div class="flex items-start gap-3">
                     <i class="fa-solid fa-location-dot text-brand-500 mt-1"></i>
@@ -174,7 +157,6 @@
                         <p class="text-xs">г. Минск, ул. Сурганова 57Б<br><span class="text-stone-400">(ТЦ «Новая Европа», 1 этаж)</span></p>
                     </div>
                 </div>
-
                 <div class="flex items-start gap-3">
                     <i class="fa-solid fa-clock text-brand-500 mt-1"></i>
                     <div>
@@ -183,36 +165,11 @@
                         <p class="text-xs">Кухня работает до 19:30</p>
                     </div>
                 </div>
-
-                <div class="flex items-start gap-3">
-                    <i class="fa-solid fa-wifi text-brand-500 mt-1"></i>
-                    <div>
-                        <p class="font-semibold text-stone-800">Wi-Fi</p>
-                        <p class="text-xs">Сеть: <span class="font-mono bg-stone-100 px-1.5 py-0.5 rounded text-stone-700">Yumbrik_Guest</span></p>
-                        <p class="text-xs">Пароль: <span class="font-mono bg-stone-100 px-1.5 py-0.5 rounded text-stone-700">coffeetime2026</span></p>
-                    </div>
-                </div>
-
-                <div class="flex items-start gap-3">
-                    <i class="fa-solid fa-heart text-brand-500 mt-1"></i>
-                    <div>
-                        <p class="font-semibold text-stone-800">О нас</p>
-                        <p class="text-xs text-stone-500 leading-relaxed">
-                            Кофе, авторские десерты собственного производства и сытные завтраки весь день. Ждем вас за лучшим настроением!
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-6 pt-4 border-t border-stone-100">
-                <a href="tel:+375291234567" class="w-full bg-brand-500 hover:bg-brand-600 text-white py-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition-colors">
-                    <i class="fa-solid fa-phone"></i> Позвонить бариста
-                </a>
             </div>
         </div>
     </div>
 
-    <!-- Cart Modal / Summary -->
+    <!-- Cart Modal -->
     <div id="cart-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 pointer-events-none transition-opacity duration-300">
         <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl transform translate-y-full sm:translate-y-0 transition-transform duration-300 max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center mb-4 pb-3 border-b border-stone-100">
@@ -233,7 +190,6 @@
                     <span class="text-stone-800">Итого к оплате:</span>
                     <span id="cart-modal-total" class="text-brand-600 font-serif text-xl">0.00 BYN</span>
                 </div>
-                <p class="text-[11px] text-stone-400 text-center">Покажите этот список бариста у стойки для быстрого оформления заказа.</p>
                 <button onclick="clearCart()" class="w-full text-stone-400 hover:text-red-500 text-xs text-center py-1 transition-colors">
                     Очистить список
                 </button>
@@ -241,24 +197,28 @@
         </div>
     </div>
 
-    <!-- JavaScript Data and Logic -->
+    <!-- JS Logic -->
     <script>
         const SHEET_ID = '1pn5-wnhJHQgRCowj3d5PM4uYDMRda78V5KTxj-Xc49o'; 
         const SHEET_MENU = encodeURIComponent('Menu');
         const SHEET_SPECIALS = encodeURIComponent('Specials');
+        const SHEET_EXTRAS = encodeURIComponent('Extras');
         
         const MENU_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&tq=select%20*&sheet=${SHEET_MENU}`;
         const SPECIALS_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&tq=select%20*&sheet=${SHEET_SPECIALS}`;
+        const EXTRAS_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&tq=select%20*&sheet=${SHEET_EXTRAS}`;
         
         let items = [];
         let specials = [];
+        let allExtras = [];
+        let selectedExtrasModal = [];
+        let activeModalItem = null;
+
         let categories = [{ id: 'all', name: 'Все', icon: 'fa-border-all' }];
         let activeCategory = 'all';
         let searchQuery = '';
         let viewMode = 'grid';
-        let cart = {};
-        let currentSlideIndex = 0;
-        let slideInterval = null;
+        let cart = []; // [{ item, selectedExtras, quantity }]
 
         const CATEGORY_ICONS = {
             'кофе': 'fa-mug-hot',
@@ -277,7 +237,32 @@
             return '';
         };
 
-        // Загрузка баннеров
+        async function fetchExtras() {
+            try {
+                const response = await fetch(EXTRAS_URL);
+                const text = await response.text();
+                const jsonMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
+                if (!jsonMatch) return;
+                
+                const data = JSON.parse(jsonMatch[1]);
+                allExtras = data.table.rows.map(row => {
+                    const c = row.c;
+                    if (!c) return null;
+                    const priceRaw = getVal(c, 1);
+                    const priceVal = parseFloat(priceRaw.replace(/[^0-9.,]/g, '').replace(',', '.')) || 0;
+                    const activeRaw = getVal(c, 3).toUpperCase();
+                    return {
+                        name: getVal(c, 0),
+                        price: priceVal,
+                        category: getVal(c, 2).toLowerCase(),
+                        active: activeRaw !== 'FALSE'
+                    };
+                }).filter(e => e && e.name && e.active);
+            } catch (e) {
+                console.error("Ошибка загрузки добавок:", e);
+            }
+        }
+
         async function fetchSpecials() {
             try {
                 const response = await fetch(SPECIALS_URL);
@@ -286,19 +271,16 @@
                 if (!jsonMatch) return fallbackBanner();
                 
                 const data = JSON.parse(jsonMatch[1]);
-                const rows = data.table.rows;
-
-                specials = rows.map(row => {
+                specials = data.table.rows.map(row => {
                     const c = row.c;
                     if (!c) return null;
-                    const activeRaw = getVal(c, 5).toUpperCase();
                     return {
                         title: getVal(c, 0),
                         subtitle: getVal(c, 1),
                         badge: getVal(c, 2) || 'Особое предложение',
                         image: getVal(c, 3),
                         itemName: getVal(c, 4),
-                        active: activeRaw === 'FALSE' ? false : true
+                        active: getVal(c, 5).toUpperCase() !== 'FALSE'
                     };
                 }).filter(s => s && s.title && s.active);
 
@@ -323,161 +305,88 @@
 
         function renderSpecialsSlider() {
             const container = document.getElementById('banner-container');
-            const dots = document.getElementById('banner-dots');
             if (!container) return;
-
-            container.innerHTML = specials.map((s, idx) => `
+            container.innerHTML = specials.map(s => `
                 <div class="w-full shrink-0 snap-center p-4 min-h-[120px] bg-gradient-to-r from-brand-900 via-stone-900 to-brand-800 text-white relative overflow-hidden flex items-center justify-between cursor-pointer" onclick="handleBannerClick('${s.itemName}')">
                     <div class="relative z-10 max-w-[80%]">
                         <span class="bg-brand-500/30 text-brand-200 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider mb-1 inline-block border border-brand-500/40">${s.badge}</span>
                         <h2 class="font-serif text-lg font-bold leading-snug">${s.title}</h2>
                         ${s.subtitle ? `<p class="text-xs text-stone-300 mt-1">${s.subtitle}</p>` : ''}
                     </div>
-                    ${s.image ? `
-                        <img src="${s.image}" class="w-20 h-20 object-cover rounded-xl shadow-md border border-white/10 shrink-0 ml-2 relative z-10">
-                    ` : `
-                        <i class="fa-solid fa-mug-hot absolute -right-3 -bottom-3 text-7xl text-white/5 transform -rotate-12"></i>
-                    `}
+                    ${s.image ? `<img src="${s.image}" class="w-20 h-20 object-cover rounded-xl shadow-md border border-white/10 shrink-0 ml-2 relative z-10">` : `<i class="fa-solid fa-mug-hot absolute -right-3 -bottom-3 text-7xl text-white/5 transform -rotate-12"></i>`}
                 </div>
             `).join('');
-
-            if (specials.length > 1) {
-                dots.innerHTML = specials.map((_, i) => `
-                    <button onclick="goToSlide(${i})" class="w-2 h-2 rounded-full transition-all ${i === 0 ? 'bg-brand-500 w-5' : 'bg-stone-300'}"></button>
-                `).join('');
-                startAutoSlide();
-            } else {
-                dots.innerHTML = '';
-            }
-        }
-
-        function goToSlide(index) {
-            currentSlideIndex = index;
-            const container = document.getElementById('banner-container');
-            if (container) {
-                container.scrollTo({ left: container.clientWidth * index, behavior: 'smooth' });
-            }
-            updateDots();
-        }
-
-        function updateDots() {
-            const dots = document.querySelectorAll('#banner-dots button');
-            dots.forEach((dot, i) => {
-                if (i === currentSlideIndex) {
-                    dot.className = 'w-5 h-2 rounded-full bg-brand-500 transition-all';
-                } else {
-                    dot.className = 'w-2 h-2 rounded-full bg-stone-300 transition-all';
-                }
-            });
-        }
-
-        function startAutoSlide() {
-            if (slideInterval) clearInterval(slideInterval);
-            slideInterval = setInterval(() => {
-                currentSlideIndex = (currentSlideIndex + 1) % specials.length;
-                goToSlide(currentSlideIndex);
-            }, 5000);
         }
 
         function handleBannerClick(itemName) {
             if (!itemName) return;
             const target = items.find(i => i.name.toLowerCase().trim() === itemName.toLowerCase().trim());
-            if (target) {
-                openItemModal(target.id);
-            } else {
-                document.getElementById('search-input').value = itemName;
-                handleSearch();
-            }
+            if (target) openItemModal(target.id);
         }
 
-        // Загрузка основного меню
         async function fetchMenuFromGoogleSheet() {
             try {
+                await fetchExtras();
                 await fetchSpecials();
 
                 const response = await fetch(MENU_URL);
                 const text = await response.text();
-                
                 const jsonMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
-                if (!jsonMatch) throw new Error("Не удалось распарсить данные таблицы");
+                if (!jsonMatch) throw new Error("Ошибка парсинга");
                 
                 const data = JSON.parse(jsonMatch[1]);
-                const rows = data.table.rows;
-
                 const rawCategories = new Set();
 
-                items = rows.map((row, index) => {
+                items = data.table.rows.map((row, index) => {
                     const c = row.c;
                     if (!c) return null;
 
                     const categoryRaw = getVal(c, 0) || 'Другое';
-                    const subcategory = getVal(c, 1);
                     const name = getVal(c, 2);
-                    const volume = getVal(c, 3);
-                    
                     const priceRaw = getVal(c, 4);
-                    let priceVal = 0;
-                    if (priceRaw) {
-                        const parsed = parseFloat(priceRaw.replace(/[^0-9.,]/g, '').replace(',', '.'));
-                        priceVal = isNaN(parsed) ? 0 : parsed;
-                    }
+                    const priceVal = parseFloat(priceRaw.replace(/[^0-9.,]/g, '').replace(',', '.')) || 0;
+                    const isAvailable = getVal(c, 5).toUpperCase() !== 'FALSE';
 
-                    const availRaw = getVal(c, 5).toUpperCase();
-                    const isAvailable = availRaw === 'FALSE' ? false : true;
-                    
-                    const imageUrl = getVal(c, 6);
-                    const ingredients = getVal(c, 7);
-                    
-                    if (name) {
-                        rawCategories.add(categoryRaw);
-                    }
+                    if (name) rawCategories.add(categoryRaw);
 
                     return {
                         id: String(index + 1),
                         name: name,
                         category: categoryRaw.toLowerCase(),
                         categoryTitle: categoryRaw,
-                        subcategory: subcategory,
-                        volume: volume,
+                        subcategory: getVal(c, 1),
+                        volume: getVal(c, 3),
                         price: priceVal,
-                        ingredients: ingredients,
-                        description: volume ? `Объём / вес: ${volume}` : (subcategory ? `Категория: ${subcategory}` : ''),
+                        ingredients: getVal(c, 7),
+                        description: getVal(c, 3) ? `Объём / вес: ${getVal(c, 3)}` : '',
                         available: isAvailable,
-                        tags: subcategory ? [subcategory] : [],
+                        tags: getVal(c, 1) ? [getVal(c, 1)] : [],
                         icon: CATEGORY_ICONS[categoryRaw.toLowerCase()] || 'fa-utensils',
-                        image: imageUrl
+                        image: getVal(c, 6)
                     };
-                })
-                .filter(item => item && item.name !== '');
+                }).filter(i => i && i.name !== '');
 
                 categories = [{ id: 'all', name: 'Все', icon: 'fa-border-all' }];
                 rawCategories.forEach(cat => {
-                    const catLower = cat.toLowerCase();
                     categories.push({
-                        id: catLower,
+                        id: cat.toLowerCase(),
                         name: cat.charAt(0).toUpperCase() + cat.slice(1),
-                        icon: CATEGORY_ICONS[catLower] || 'fa-utensils'
+                        icon: CATEGORY_ICONS[cat.toLowerCase()] || 'fa-utensils'
                     });
                 });
 
                 renderCategories();
                 renderMenu();
-            } catch (error) {
-                console.error("Ошибка загрузки меню:", error);
+            } catch (e) {
+                console.error("Ошибка:", e);
             }
         }
 
         function renderCategories() {
-            const categoriesNav = document.getElementById('categories-nav');
-            if (!categoriesNav) return;
-
-            categoriesNav.innerHTML = categories.map(cat => `
-                <button onclick="setCategory('${cat.id}')" 
-                    class="px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 ${
-                        activeCategory === cat.id 
-                            ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20' 
-                            : 'bg-white text-stone-600 border border-stone-200/60 hover:bg-stone-100'
-                    }">
+            const nav = document.getElementById('categories-nav');
+            if (!nav) return;
+            nav.innerHTML = categories.map(cat => `
+                <button onclick="setCategory('${cat.id}')" class="px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 ${activeCategory === cat.id ? 'bg-brand-500 text-white shadow-md' : 'bg-white text-stone-600 border border-stone-200/60'}">
                     <i class="fa-solid ${cat.icon} text-xs"></i>
                     <span>${cat.name}</span>
                 </button>
@@ -485,318 +394,177 @@
         }
 
         function getFilteredItems() {
-            const filtered = items.filter(item => {
+            return items.filter(item => {
                 const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
-                const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                                      item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                      item.subcategory.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                      item.ingredients.toLowerCase().includes(searchQuery.toLowerCase());
+                const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
                 return matchesCategory && matchesSearch;
-            });
-
-            return filtered.sort((a, b) => (b.available === true ? 1 : 0) - (a.available === true ? 1 : 0));
+            }).sort((a, b) => (b.available ? 1 : 0) - (a.available ? 1 : 0));
         }
 
         function renderMenu() {
-            const menuContainer = document.getElementById('menu-container');
-            const emptyState = document.getElementById('empty-state');
-            const categoryTitle = document.getElementById('current-category-title');
+            const container = document.getElementById('menu-container');
             const itemsCount = document.getElementById('items-count');
+            if (!container) return;
 
-            if (!menuContainer) return;
+            const filtered = getFilteredItems();
+            if (itemsCount) itemsCount.textContent = `${filtered.length} позиций`;
 
-            const filteredItems = getFilteredItems();
-
-            const currentCatObj = categories.find(c => c.id === activeCategory);
-            if (categoryTitle) categoryTitle.textContent = currentCatObj ? currentCatObj.name : 'Меню';
-            if (itemsCount) itemsCount.textContent = `${filteredItems.length} ${getNounForm(filteredItems.length, 'позиция', 'позиции', 'позиций')}`;
-
-            if (filteredItems.length === 0) {
-                menuContainer.innerHTML = '';
-                if (emptyState) emptyState.classList.remove('hidden');
-                return;
-            }
-
-            if (emptyState) emptyState.classList.add('hidden');
-
-            if (viewMode === 'grid') {
-                menuContainer.className = "grid grid-cols-1 md:grid-cols-2 gap-4";
-                menuContainer.innerHTML = filteredItems.map(item => renderGridCard(item)).join('');
-            } else {
-                menuContainer.className = "space-y-2.5";
-                menuContainer.innerHTML = filteredItems.map(item => renderCompactCard(item)).join('');
-            }
+            container.className = viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "space-y-2.5";
+            container.innerHTML = filtered.map(item => viewMode === 'grid' ? renderGridCard(item) : renderCompactCard(item)).join('');
         }
 
         function renderGridCard(item) {
-            const qty = cart[item.id] || 0;
             const isAvail = item.available;
-            
             const mediaHtml = item.image 
-                ? `<div class="relative mb-3">
-                    <img src="${item.image}" alt="${item.name}" class="w-full h-44 rounded-xl object-cover shadow-sm border border-stone-100 cursor-pointer ${!isAvail ? 'grayscale opacity-75' : ''}" loading="lazy" onclick="openItemModal('${item.id}')">
-                    ${!isAvail ? `<span class="absolute top-2 left-2 bg-stone-900/85 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Закончилось</span>` : ''}
-                   </div>`
-                : `<div class="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center text-brand-600 shrink-0 mb-2 cursor-pointer" onclick="openItemModal('${item.id}')">
-                    <i class="fa-solid ${item.icon} text-lg"></i>
-                   </div>`;
+                ? `<div class="relative mb-3"><img src="${item.image}" class="w-full h-44 rounded-xl object-cover shadow-sm border border-stone-100 cursor-pointer ${!isAvail ? 'grayscale opacity-75' : ''}" onclick="openItemModal('${item.id}')"></div>`
+                : `<div class="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center text-brand-600 shrink-0 mb-2 cursor-pointer" onclick="openItemModal('${item.id}')"><i class="fa-solid ${item.icon} text-lg"></i></div>`;
 
             return `
-                <div class="bg-white rounded-2xl p-4 border border-stone-100 shadow-sm transition-all flex flex-col justify-between ${!isAvail ? 'opacity-60 bg-stone-50/50' : 'hover:shadow-md'}">
+                <div class="bg-white rounded-2xl p-4 border border-stone-100 shadow-sm flex flex-col justify-between ${!isAvail ? 'opacity-60 bg-stone-50/50' : 'hover:shadow-md'}">
                     <div>
                         ${mediaHtml}
-                        <div class="flex items-start justify-between gap-2 mb-1">
-                            <h3 onclick="openItemModal('${item.id}')" class="font-bold text-stone-900 text-base leading-snug cursor-pointer hover:text-brand-600 transition-colors">${item.name}</h3>
-                            <div class="flex flex-wrap gap-1 justify-end shrink-0">
-                                ${item.tags.map(tag => `
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">${tag}</span>
-                                `).join('')}
-                            </div>
-                        </div>
-                        <p onclick="openItemModal('${item.id}')" class="text-xs text-stone-500 mt-1 leading-relaxed cursor-pointer line-clamp-2">${item.description}</p>
+                        <h3 onclick="openItemModal('${item.id}')" class="font-bold text-stone-900 text-base cursor-pointer hover:text-brand-600">${item.name}</h3>
+                        <p class="text-xs text-stone-500 mt-1 line-clamp-2">${item.description}</p>
                     </div>
-
                     <div class="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between">
-                        <div>
-                            <span class="font-bold text-brand-900 text-base">${item.price.toFixed(2)} <span class="text-xs font-normal">BYN</span></span>
-                        </div>
-                        
-                        ${!isAvail ? `
-                            <span class="text-xs font-medium text-stone-400 bg-stone-100 px-3 py-1.5 rounded-xl">Недоступно</span>
-                        ` : (qty > 0 ? `
-                            <div class="flex items-center gap-2 bg-stone-100 p-1 rounded-xl">
-                                <button onclick="event.stopPropagation(); updateCart('${item.id}', -1)" class="w-7 h-7 rounded-lg bg-white text-stone-700 shadow-sm flex items-center justify-center active:scale-95 transition-transform">
-                                    <i class="fa-solid fa-minus text-xs"></i>
-                                </button>
-                                <span class="text-xs font-bold w-4 text-center text-stone-800">${qty}</span>
-                                <button onclick="event.stopPropagation(); updateCart('${item.id}', 1)" class="w-7 h-7 rounded-lg bg-brand-500 text-white shadow-sm flex items-center justify-center active:scale-95 transition-transform">
-                                    <i class="fa-solid fa-plus text-xs"></i>
-                                </button>
-                            </div>
-                        ` : `
-                            <button onclick="event.stopPropagation(); updateCart('${item.id}', 1)" class="px-3 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-semibold shadow-sm active:scale-95 transition-all flex items-center gap-1.5">
-                                <i class="fa-solid fa-plus text-xs"></i> Добавить
+                        <span class="font-bold text-brand-900 text-base">${item.price.toFixed(2)} BYN</span>
+                        ${!isAvail ? `<span class="text-xs font-medium text-stone-400 bg-stone-100 px-3 py-1.5 rounded-xl">Закончилось</span>` : `
+                            <button onclick="openItemModal('${item.id}')" class="px-3 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-semibold shadow-sm active:scale-95 transition-all">
+                                Выбрать
                             </button>
-                        `)}
+                        `}
                     </div>
                 </div>
             `;
         }
 
         function renderCompactCard(item) {
-            const qty = cart[item.id] || 0;
             const isAvail = item.available;
-            
-            const mediaHtml = item.image
-                ? `<div class="relative shrink-0">
-                    <img src="${item.image}" alt="${item.name}" class="w-10 h-10 rounded-lg object-cover shadow-sm border border-stone-100 cursor-pointer ${!isAvail ? 'grayscale opacity-75' : ''}" loading="lazy" onclick="openItemModal('${item.id}')">
-                   </div>`
-                : `<div class="w-9 h-9 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 shrink-0 cursor-pointer" onclick="openItemModal('${item.id}')">
-                    <i class="fa-solid ${item.icon} text-sm"></i>
-                   </div>`;
-
             return `
-                <div class="bg-white rounded-xl p-3 border border-stone-100 shadow-sm flex items-center justify-between gap-3 ${!isAvail ? 'opacity-60 bg-stone-50/50' : ''}">
-                    <div class="flex items-center gap-3 min-w-0 cursor-pointer flex-1" onclick="openItemModal('${item.id}')">
-                        ${mediaHtml}
+                <div class="bg-white rounded-xl p-3 border border-stone-100 shadow-sm flex items-center justify-between gap-3 ${!isAvail ? 'opacity-60' : ''}">
+                    <div class="flex items-center gap-3 cursor-pointer flex-1" onclick="openItemModal('${item.id}')">
                         <div class="min-w-0">
-                            <div class="flex items-center gap-2">
-                                <h3 class="font-bold text-stone-900 text-xs truncate hover:text-brand-600 transition-colors">${item.name}</h3>
-                                ${!isAvail ? `<span class="text-[9px] font-bold text-stone-400 bg-stone-200/70 px-1.5 py-0.5 rounded">Закончилось</span>` : ''}
-                            </div>
-                            <p class="text-[11px] text-stone-400 truncate">${item.volume ? item.volume + ' • ' : ''}${item.price.toFixed(2)} BYN</p>
+                            <h3 class="font-bold text-stone-900 text-xs truncate">${item.name}</h3>
+                            <p class="text-[11px] text-stone-400">${item.price.toFixed(2)} BYN</p>
                         </div>
                     </div>
-
-                    <div>
-                        ${!isAvail ? `
-                            <span class="text-[11px] font-medium text-stone-400">Нет</span>
-                        ` : (qty > 0 ? `
-                            <div class="flex items-center gap-1.5 bg-stone-100 p-1 rounded-lg">
-                                <button onclick="event.stopPropagation(); updateCart('${item.id}', -1)" class="w-6 h-6 rounded bg-white text-stone-700 flex items-center justify-center">
-                                    <i class="fa-solid fa-minus text-[10px]"></i>
-                                </button>
-                                <span class="text-xs font-bold w-4 text-center">${qty}</span>
-                                <button onclick="event.stopPropagation(); updateCart('${item.id}', 1)" class="w-6 h-6 rounded bg-brand-500 text-white flex items-center justify-center">
-                                    <i class="fa-solid fa-plus text-[10px]"></i>
-                                </button>
-                            </div>
-                        ` : `
-                            <button onclick="event.stopPropagation(); updateCart('${item.id}', 1)" class="w-8 h-8 rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-600 flex items-center justify-center transition-colors">
-                                <i class="fa-solid fa-plus text-xs"></i>
-                            </button>
-                        `)}
-                    </div>
+                    ${!isAvail ? `<span class="text-xs text-stone-400">Нет</span>` : `<button onclick="openItemModal('${item.id}')" class="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center"><i class="fa-solid fa-plus text-xs"></i></button>`}
                 </div>
             `;
         }
 
+        // Открытие карточки
         function openItemModal(itemId) {
             const item = items.find(i => i.id === itemId);
             if (!item) return;
 
+            activeModalItem = item;
+            selectedExtrasModal = [];
+
             const modal = document.getElementById('item-modal');
-            const tagsContainer = document.getElementById('item-modal-tags');
-            const bodyContainer = document.getElementById('item-modal-body');
-            if (!modal || !bodyContainer) return;
+            const body = document.getElementById('item-modal-body');
 
-            const qty = cart[item.id] || 0;
-            const isAvail = item.available;
+            // Фильтруем добавки для категории
+            const availableExtras = allExtras.filter(e => e.category === 'все' || e.category === item.category);
 
-            tagsContainer.innerHTML = `
-                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 text-brand-800 border border-brand-200/60">${item.categoryTitle}</span>
-                ${item.subcategory ? `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">${item.subcategory}</span>` : ''}
-                ${item.volume ? `<span class="px-2.5 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-600">${item.volume}</span>` : ''}
-                ${!isAvail ? `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">Закончилось</span>` : ''}
-            `;
-
-            const mediaHtml = item.image 
-                ? `<div class="relative">
-                    <img src="${item.image}" alt="${item.name}" class="w-full h-56 rounded-2xl object-cover shadow-sm border border-stone-100 mb-3 ${!isAvail ? 'grayscale' : ''}">
-                    ${!isAvail ? `<span class="absolute top-3 left-3 bg-stone-900/85 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Временно недоступно</span>` : ''}
-                   </div>`
-                : `<div class="w-full h-40 rounded-2xl bg-brand-50 flex items-center justify-center text-brand-600 mb-3">
-                     <i class="fa-solid ${item.icon} text-5xl"></i>
-                   </div>`;
-
-            const compText = item.ingredients 
-                ? item.ingredients 
-                : (item.subcategory ? `Категория: ${item.subcategory}` : 'Состав и детали уточняйте у бариста при заказе.');
-
-            bodyContainer.innerHTML = `
-                ${mediaHtml}
-                <div>
-                    <h3 class="font-serif font-bold text-2xl text-stone-900 leading-tight">${item.name}</h3>
-                    <div class="font-extrabold text-brand-600 text-xl mt-1">${item.price.toFixed(2)} BYN</div>
-                </div>
-
-                <div class="bg-stone-50 rounded-2xl p-4 border border-stone-100 mt-2">
-                    <h4 class="font-bold text-xs uppercase tracking-wider text-stone-400 mb-1.5 flex items-center gap-1.5">
-                        <i class="fa-solid fa-wheat-awn text-brand-500"></i> Состав и описание
-                    </h4>
-                    <p class="text-sm text-stone-700 leading-relaxed whitespace-pre-line">${compText}</p>
-                </div>
-
-                <div class="pt-2 flex items-center justify-between gap-4 mt-4 border-t border-stone-100">
-                    <div>
-                        <span class="text-xs text-stone-400">Статус заказа:</span>
-                        <div class="text-stone-800 font-bold text-sm">${!isAvail ? 'Временно нет' : (qty > 0 ? `${qty} шт.` : 'Не добавлено')}</div>
-                    </div>
-                    ${!isAvail ? `
-                        <button disabled class="px-5 py-3 bg-stone-200 text-stone-500 rounded-2xl text-xs font-bold cursor-not-allowed">
-                            Позиция закончилась
-                        </button>
-                    ` : (qty > 0 ? `
-                        <div class="flex items-center gap-3 bg-stone-100 p-1.5 rounded-2xl">
-                            <button onclick="updateCart('${item.id}', -1); openItemModal('${item.id}');" class="w-9 h-9 rounded-xl bg-white text-stone-700 shadow-sm flex items-center justify-center active:scale-95 transition-transform">
-                                <i class="fa-solid fa-minus text-sm"></i>
-                            </button>
-                            <span class="text-sm font-bold w-6 text-center text-stone-800">${qty}</span>
-                            <button onclick="updateCart('${item.id}', 1); openItemModal('${item.id}');" class="w-9 h-9 rounded-xl bg-brand-500 text-white shadow-sm flex items-center justify-center active:scale-95 transition-transform">
-                                <i class="fa-solid fa-plus text-sm"></i>
-                            </button>
-                        </div>
-                    ` : `
-                        <button onclick="updateCart('${item.id}', 1); openItemModal('${item.id}');" class="px-5 py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-2xl text-xs font-bold shadow-md active:scale-95 transition-all flex items-center gap-2">
-                            <i class="fa-solid fa-plus text-xs"></i> Добавить в заказ
-                        </button>
-                    `)}
-                </div>
-            `;
+            renderModalContent(availableExtras);
 
             modal.classList.remove('opacity-0', 'pointer-events-none');
             if (modal.firstElementChild) modal.firstElementChild.classList.remove('translate-y-full');
         }
 
+        function toggleExtra(extraName) {
+            const index = selectedExtrasModal.findIndex(e => e.name === extraName);
+            if (index > -1) {
+                selectedExtrasModal.splice(index, 1);
+            } else {
+                const extraObj = allExtras.find(e => e.name === extraName);
+                if (extraObj) selectedExtrasModal.push(extraObj);
+            }
+            const availableExtras = allExtras.filter(e => e.category === 'все' || e.category === activeModalItem.category);
+            renderModalContent(availableExtras);
+        }
+
+        function renderModalContent(availableExtras) {
+            const body = document.getElementById('item-modal-body');
+            const item = activeModalItem;
+
+            let extrasSum = selectedExtrasModal.reduce((sum, e) => sum + e.price, 0);
+            let totalPrice = item.price + extrasSum;
+
+            body.innerHTML = `
+                <div>
+                    <h3 class="font-serif font-bold text-2xl text-stone-900">${item.name}</h3>
+                    <div class="font-extrabold text-brand-600 text-xl mt-1">${totalPrice.toFixed(2)} BYN</div>
+                </div>
+
+                <div class="bg-stone-50 rounded-2xl p-4 border border-stone-100">
+                    <h4 class="font-bold text-xs uppercase tracking-wider text-stone-400 mb-1">Состав</h4>
+                    <p class="text-sm text-stone-700">${item.ingredients || item.description || 'Классический рецепт'}</p>
+                </div>
+
+                ${availableExtras.length > 0 ? `
+                    <div class="space-y-2 pt-2">
+                        <h4 class="font-bold text-xs uppercase tracking-wider text-stone-400">Добавки и топпинги:</h4>
+                        <div class="space-y-1.5">
+                            ${availableExtras.map(ex => {
+                                const isChecked = selectedExtrasModal.some(e => e.name === ex.name);
+                                return `
+                                    <label onclick="toggleExtra('${ex.name}')" class="flex items-center justify-between p-3 rounded-xl border ${isChecked ? 'border-brand-500 bg-brand-50/50' : 'border-stone-200 bg-white'} cursor-pointer transition-all">
+                                        <div class="flex items-center gap-2.5">
+                                            <input type="checkbox" ${isChecked ? 'checked' : ''} class="w-4 h-4 accent-brand-500 rounded">
+                                            <span class="text-xs font-semibold text-stone-800">${ex.name}</span>
+                                        </div>
+                                        <span class="text-xs font-bold text-brand-600">+${ex.price.toFixed(2)} BYN</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+
+                <button onclick="addToCartCurrent()" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white rounded-2xl text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2 mt-4">
+                    <i class="fa-solid fa-plus text-xs"></i> Добавить в заказ за ${totalPrice.toFixed(2)} BYN
+                </button>
+            `;
+        }
+
+        function addToCartCurrent() {
+            if (!activeModalItem) return;
+
+            cart.push({
+                item: activeModalItem,
+                extras: [...selectedExtrasModal],
+                quantity: 1
+            });
+
+            updateCartBar();
+            closeItemModal();
+        }
+
         function closeItemModal() {
             const modal = document.getElementById('item-modal');
-            if (!modal) return;
-            modal.classList.add('opacity-0', 'pointer-events-none');
-            if (modal.firstElementChild) modal.firstElementChild.classList.add('translate-y-full');
-        }
-
-        function setCategory(catId) {
-            activeCategory = catId;
-            renderCategories();
-            renderMenu();
-        }
-
-        function handleSearch() {
-            const searchInput = document.getElementById('search-input');
-            const clearSearchBtn = document.getElementById('clear-search');
-            searchQuery = searchInput ? searchInput.value : '';
-            if (clearSearchBtn) {
-                clearSearchBtn.classList.toggle('hidden', searchQuery.length === 0);
+            if (modal) {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                if (modal.firstElementChild) modal.firstElementChild.classList.add('translate-y-full');
             }
-            renderMenu();
-        }
-
-        function clearSearch() {
-            const searchInput = document.getElementById('search-input');
-            const clearSearchBtn = document.getElementById('clear-search');
-            if (searchInput) searchInput.value = '';
-            searchQuery = '';
-            if (clearSearchBtn) clearSearchBtn.classList.add('hidden');
-            renderMenu();
-        }
-
-        function resetFilters() {
-            activeCategory = 'all';
-            clearSearch();
-            renderCategories();
-        }
-
-        function toggleView() {
-            viewMode = viewMode === 'grid' ? 'compact' : 'grid';
-            const icon = document.getElementById('view-icon');
-            if (icon) {
-                icon.className = viewMode === 'grid' ? 'fa-solid fa-list text-sm' : 'fa-solid fa-border-all text-sm';
-            }
-            renderMenu();
-        }
-
-        function updateCart(itemId, change) {
-            const item = items.find(i => i.id === itemId);
-            if (!item || !item.available) return;
-
-            const currentQty = cart[itemId] || 0;
-            const newQty = currentQty + change;
-
-            if (newQty <= 0) {
-                delete cart[itemId];
-            } else {
-                cart[itemId] = newQty;
-            }
-
-            renderMenu();
-            updateCartBar();
-        }
-
-        function clearCart() {
-            cart = {};
-            renderMenu();
-            updateCartBar();
-            closeCartModal();
         }
 
         function updateCartBar() {
             const cartBar = document.getElementById('cart-bar');
             const cartBadge = document.getElementById('cart-badge');
             const cartTotal = document.getElementById('cart-total');
-            if (!cartBar) return;
 
-            const totalItems = Object.values(cart).reduce((a, b) => a + b, 0);
-            
+            const totalCount = cart.length;
             let totalPrice = 0;
-            for (let id in cart) {
-                const item = items.find(i => i.id === id);
-                if (item) {
-                    totalPrice += item.price * cart[id];
-                }
-            }
 
-            if (totalItems > 0) {
-                if (cartBadge) cartBadge.textContent = totalItems;
+            cart.forEach(entry => {
+                let entrySum = entry.item.price + entry.extras.reduce((s, e) => s + e.price, 0);
+                totalPrice += entrySum;
+            });
+
+            if (totalCount > 0) {
+                if (cartBadge) cartBadge.textContent = totalCount;
                 if (cartTotal) cartTotal.textContent = `${totalPrice.toFixed(2)} BYN`;
                 cartBar.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
             } else {
@@ -809,87 +577,98 @@
             const list = document.getElementById('cart-items-list');
             const modalCount = document.getElementById('cart-modal-count');
             const modalTotal = document.getElementById('cart-modal-total');
-            if (!modal || !list) return;
 
             let html = '';
-            let totalItems = 0;
             let totalPrice = 0;
 
-            for (let id in cart) {
-                const item = items.find(i => i.id === id);
-                if (item) {
-                    const qty = cart[id];
-                    const itemSum = item.price * qty;
-                    totalItems += qty;
-                    totalPrice += itemSum;
+            cart.forEach((entry, idx) => {
+                let entrySum = entry.item.price + entry.extras.reduce((s, e) => s + e.price, 0);
+                totalPrice += entrySum;
 
-                    const itemMedia = item.image
-                        ? `<img src="${item.image}" alt="${item.name}" class="w-8 h-8 rounded-lg object-cover shrink-0">`
-                        : `<div class="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 shrink-0"><i class="fa-solid ${item.icon} text-xs"></i></div>`;
+                let extrasText = entry.extras.length > 0 
+                    ? `<p class="text-[11px] text-brand-600 mt-0.5">+ ${entry.extras.map(e => e.name).join(', ')}</p>` 
+                    : '';
 
-                    html += `
-                        <div class="py-2.5 flex items-center justify-between gap-3">
-                            <div class="flex items-center gap-2 min-w-0">
-                                ${itemMedia}
-                                <div class="min-w-0">
-                                    <h4 class="font-bold text-stone-900 text-sm truncate">${item.name}</h4>
-                                    <p class="text-xs text-stone-400">${item.price.toFixed(2)} BYN × ${qty}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-3 shrink-0">
-                                <span class="font-bold text-stone-800 text-sm">${itemSum.toFixed(2)} BYN</span>
-                                <div class="flex items-center gap-1.5 bg-stone-100 p-1 rounded-lg">
-                                    <button onclick="updateCart('${item.id}', -1); openCartModal();" class="w-6 h-6 rounded bg-white text-stone-700 flex items-center justify-center">
-                                        <i class="fa-solid fa-minus text-[10px]"></i>
-                                    </button>
-                                    <span class="text-xs font-bold w-4 text-center">${qty}</span>
-                                    <button onclick="updateCart('${item.id}', 1); openCartModal();" class="w-6 h-6 rounded bg-brand-500 text-white flex items-center justify-center">
-                                        <i class="fa-solid fa-plus text-[10px]"></i>
-                                    </button>
-                                </div>
-                            </div>
+                html += `
+                    <div class="py-2.5 flex items-center justify-between gap-3">
+                        <div class="min-w-0 flex-1">
+                            <h4 class="font-bold text-stone-900 text-sm truncate">${entry.item.name}</h4>
+                            ${extrasText}
+                            <p class="text-xs text-stone-400 mt-0.5">${entrySum.toFixed(2)} BYN</p>
                         </div>
-                    `;
-                }
-            }
+                        <button onclick="removeFromCart(${idx})" class="w-7 h-7 rounded-lg bg-stone-100 hover:bg-red-50 text-stone-400 hover:text-red-500 flex items-center justify-center">
+                            <i class="fa-solid fa-trash text-xs"></i>
+                        </button>
+                    </div>
+                `;
+            });
 
-            list.innerHTML = html;
-            if (modalCount) modalCount.textContent = totalItems;
+            if (list) list.innerHTML = html;
+            if (modalCount) modalCount.textContent = cart.length;
             if (modalTotal) modalTotal.textContent = `${totalPrice.toFixed(2)} BYN`;
 
             modal.classList.remove('opacity-0', 'pointer-events-none');
             if (modal.firstElementChild) modal.firstElementChild.classList.remove('translate-y-full');
         }
 
+        function removeFromCart(idx) {
+            cart.splice(idx, 1);
+            updateCartBar();
+            openCartModal();
+        }
+
+        function clearCart() {
+            cart = [];
+            updateCartBar();
+            closeCartModal();
+        }
+
         function closeCartModal() {
             const modal = document.getElementById('cart-modal');
-            if (!modal) return;
-            modal.classList.add('opacity-0', 'pointer-events-none');
-            if (modal.firstElementChild) modal.firstElementChild.classList.add('translate-y-full');
+            if (modal) {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                if (modal.firstElementChild) modal.firstElementChild.classList.add('translate-y-full');
+            }
+        }
+
+        function setCategory(catId) {
+            activeCategory = catId;
+            renderCategories();
+            renderMenu();
+        }
+
+        function handleSearch() {
+            searchQuery = document.getElementById('search-input').value;
+            renderMenu();
+        }
+
+        function clearSearch() {
+            document.getElementById('search-input').value = '';
+            searchQuery = '';
+            renderMenu();
+        }
+
+        function resetFilters() {
+            activeCategory = 'all';
+            clearSearch();
+            renderCategories();
+        }
+
+        function toggleView() {
+            viewMode = viewMode === 'grid' ? 'compact' : 'grid';
+            renderMenu();
         }
 
         function openInfoModal() {
             const modal = document.getElementById('info-modal');
-            if (!modal) return;
             modal.classList.remove('opacity-0', 'pointer-events-none');
             if (modal.firstElementChild) modal.firstElementChild.classList.remove('translate-y-full');
         }
 
         function closeInfoModal() {
             const modal = document.getElementById('info-modal');
-            if (!modal) return;
             modal.classList.add('opacity-0', 'pointer-events-none');
             if (modal.firstElementChild) modal.firstElementChild.classList.add('translate-y-full');
-        }
-
-        function getNounForm(number, one, two, five) {
-            let n = Math.abs(number);
-            n %= 100;
-            if (n >= 5 && n <= 20) return five;
-            n %= 10;
-            if (n === 1) return one;
-            if (n >= 2 && n <= 4) return two;
-            return five;
         }
 
         document.addEventListener('DOMContentLoaded', fetchMenuFromGoogleSheet);
