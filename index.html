@@ -122,8 +122,8 @@
     </div>
 
     <!-- Item Detail Modal -->
-    <div id="item-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl transform translate-y-full sm:translate-y-0 transition-transform duration-300 max-h-[90vh] flex flex-col overflow-y-auto">
+    <div id="item-modal" onclick="closeItemModal()" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div onclick="event.stopPropagation()" class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl transform translate-y-full sm:translate-y-0 transition-transform duration-300 max-h-[90vh] flex flex-col overflow-y-auto">
             <div class="flex justify-between items-start mb-3">
                 <div class="flex flex-wrap gap-1.5" id="item-modal-tags"></div>
                 <button onclick="closeItemModal()" class="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center text-stone-500 hover:bg-stone-200 shrink-0 ml-auto">
@@ -135,8 +135,8 @@
     </div>
 
     <!-- Info Modal -->
-    <div id="info-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl transform translate-y-full sm:translate-y-0 transition-transform duration-300 max-h-[85vh] overflow-y-auto">
+    <div id="info-modal" onclick="closeInfoModal()" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div onclick="event.stopPropagation()" class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl transform translate-y-full sm:translate-y-0 transition-transform duration-300 max-h-[85vh] overflow-y-auto">
             <div class="flex justify-between items-start mb-4">
                 <div class="flex items-center gap-3">
                     <img src="logo.jpg" alt="Юмбрик" class="w-12 h-12 rounded-2xl object-cover shadow-md shadow-brand-500/20">
@@ -170,8 +170,8 @@
     </div>
 
     <!-- Cart Modal -->
-    <div id="cart-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl transform translate-y-full sm:translate-y-0 transition-transform duration-300 max-h-[85vh] flex flex-col">
+    <div id="cart-modal" onclick="closeCartModal()" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div onclick="event.stopPropagation()" class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl transform translate-y-full sm:translate-y-0 transition-transform duration-300 max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center mb-4 pb-3 border-b border-stone-100">
                 <h3 class="font-serif font-bold text-lg text-stone-900">Ваш выбранный заказ</h3>
                 <button onclick="closeCartModal()" class="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center text-stone-500 hover:bg-stone-200">
@@ -777,6 +777,14 @@
             modal.classList.add('opacity-0', 'pointer-events-none');
             if (modal.firstElementChild) modal.firstElementChild.classList.add('translate-y-full');
         }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeItemModal();
+                closeCartModal();
+                closeInfoModal();
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', fetchMenuFromGoogleSheet);
     </script>
