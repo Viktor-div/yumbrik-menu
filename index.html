@@ -414,29 +414,57 @@
         }
 
         function renderGridCard(item) {
-            const isAvail = item.available;
-            const mediaHtml = item.image 
-                ? `<div class="relative mb-3"><img src="${item.image}" class="w-full h-44 rounded-xl object-cover shadow-sm border border-stone-100 cursor-pointer ${!isAvail ? 'grayscale opacity-75' : ''}" onclick="openItemModal('${item.id}')"></div>`
-                : `<div class="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center text-brand-600 shrink-0 mb-2 cursor-pointer" onclick="openItemModal('${item.id}')"><i class="fa-solid ${item.icon} text-lg"></i></div>`;
+    const isAvail = item.available;
+    
+    // Считаем общее количество этого блюда в корзине (со всеми добавками или без)
+    const cartEntries = cart.filter(entry => entry.item.id === item.id);
+    const qty = cartEntries.reduce((sum, entry) => sum + entry.quantity, 0);
 
-            return `
-                <div class="bg-white rounded-2xl p-4 border border-stone-100 shadow-sm flex flex-col justify-between ${!isAvail ? 'opacity-60 bg-stone-50/50' : 'hover:shadow-md'}">
-                    <div>
-                        ${mediaHtml}
-                        <h3 onclick="openItemModal('${item.id}')" class="font-bold text-stone-900 text-base cursor-pointer hover:text-brand-600">${item.name}</h3>
-                        <p class="text-xs text-stone-500 mt-1 line-clamp-2">${item.description}</p>
-                    </div>
-                    <div class="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between">
-                        <span class="font-bold text-brand-900 text-base">${item.price.toFixed(2)} BYN</span>
-                        ${!isAvail ? `<span class="text-xs font-medium text-stone-400 bg-stone-100 px-3 py-1.5 rounded-xl">Закончилось</span>` : `
-                            <button onclick="openItemModal('${item.id}')" class="px-3 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-semibold shadow-sm active:scale-95 transition-all">
-                                Выбрать
-                            </button>
-                        `}
-                    </div>
+    const mediaHtml = item.image 
+        ? `<div class="relative mb-3">
+            <img src="${item.image}" alt="${item.name}" class="w-full h-44 rounded-xl object-cover shadow-sm border border-stone-100 cursor-pointer ${!isAvail ? 'grayscale opacity-75' : ''}" loading="lazy" onclick="openItemModal('${item.id}')">
+            ${!isAvail ? `<span class="absolute top-2 left-2 bg-stone-900/85 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Закончилось</span>` : ''}
+           </div>`
+        : `<div class="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center text-brand-600 shrink-0 mb-2 cursor-pointer" onclick="openItemModal('${item.id}')">
+            <i class="fa-solid ${item.icon} text-lg"></i>
+           </div>`;
+
+    return `
+        <div class="bg-white rounded-2xl p-4 border border-stone-100 shadow-sm transition-all flex flex-col justify-between ${!isAvail ? 'opacity-60 bg-stone-50/50' : 'hover:shadow-md'}">
+            <div>
+                ${mediaHtml}
+                <div class="flex items-start justify-between gap-2 mb-1">
+                    <h3 onclick="openItemModal('${item.id}')" class="font-bold text-stone-900 text-base leading-snug cursor-pointer hover:text-brand-600 transition-colors">${item.name}</h3>
                 </div>
-            `;
-        }
+                <p onclick="openItemModal('${item.id}')" class="text-xs text-stone-500 mt-1 leading-relaxed cursor-pointer line-clamp-2">${item.description}</p>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between">
+                <div>
+                    <span class="font-bold text-brand-900 text-base">${item.price.toFixed(2)} <span class="text-xs font-normal">BYN</span></span>
+                </div>
+                
+                ${!isAvail ? `
+                    <span class="text-xs font-medium text-stone-400 bg-stone-100 px-3 py-1.5 rounded-xl">Недоступно</span>
+                ` : (qty > 0 ? `
+                    <div class="flex items-center gap-2 bg-stone-100 p-1 rounded-xl">
+                        <button onclick="event.stopPropagation(); changeCardQty('${item.id}', -1)" class="w-7 h-7 rounded-lg bg-white text-stone-700 shadow-sm flex items-center justify-center active:scale-95 transition-transform">
+                            <i class="fa-solid fa-minus text-xs"></i>
+                        </button>
+                        <span class="text-xs font-bold w-4 text-center text-stone-800">${qty}</span>
+                        <button onclick="event.stopPropagation(); changeCardQty('${item.id}', 1)" class="w-7 h-7 rounded-lg bg-brand-500 text-white shadow-sm flex items-center justify-center active:scale-95 transition-transform">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                        </button>
+                    </div>
+                ` : `
+                    <button onclick="event.stopPropagation(); changeCardQty('${item.id}', 1)" class="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-semibold shadow-sm active:scale-95 transition-all">
+                        Выбрать
+                    </button>
+                `)}
+            </div>
+        </div>
+    `;
+}
 
         function renderCompactCard(item) {
             const isAvail = item.available;
@@ -545,26 +573,56 @@ function renderModalContent(availableExtras) {
         }
 
         function updateCartBar() {
-            const cartBar = document.getElementById('cart-bar');
-            const cartBadge = document.getElementById('cart-badge');
-            const cartTotal = document.getElementById('cart-total');
+    const cartBar = document.getElementById('cart-bar');
+    const cartBadge = document.getElementById('cart-badge');
+    const cartTotal = document.getElementById('cart-total');
 
-            const totalCount = cart.length;
-            let totalPrice = 0;
+    // Считаем общее количество штук с учетом quantity каждой позиции
+    const totalCount = cart.reduce((sum, entry) => sum + entry.quantity, 0);
+    let totalPrice = 0;
 
-            cart.forEach(entry => {
-                let entrySum = entry.item.price + entry.extras.reduce((s, e) => s + e.price, 0);
-                totalPrice += entrySum;
+    cart.forEach(entry => {
+        let entryPrice = entry.item.price + entry.extras.reduce((s, e) => s + e.price, 0);
+        totalPrice += entryPrice * entry.quantity;
+    });
+
+    if (totalCount > 0) {
+        if (cartBadge) cartBadge.textContent = totalCount;
+        if (cartTotal) cartTotal.textContent = `${totalPrice.toFixed(2)} BYN`;
+        cartBar.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+    } else {
+        cartBar.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+    }
+}
+
+        function changeCardQty(itemId, change) {
+    const item = items.find(i => i.id === itemId);
+    if (!item || !item.available) return;
+
+    // Находим позицию этого блюда в корзине без добавок (или первую попавшуюся)
+    const index = cart.findIndex(entry => entry.item.id === itemId);
+
+    if (change > 0) {
+        if (index > -1) {
+            cart[index].quantity += 1;
+        } else {
+            cart.push({
+                item: item,
+                extras: [],
+                quantity: 1
             });
-
-            if (totalCount > 0) {
-                if (cartBadge) cartBadge.textContent = totalCount;
-                if (cartTotal) cartTotal.textContent = `${totalPrice.toFixed(2)} BYN`;
-                cartBar.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
-            } else {
-                cartBar.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
-            }
         }
+    } else if (change < 0 && index > -1) {
+        if (cart[index].quantity > 1) {
+            cart[index].quantity -= 1;
+        } else {
+            cart.splice(index, 1);
+        }
+    }
+
+    renderMenu();
+    updateCartBar();
+}
 
         function openCartModal() {
             const modal = document.getElementById('cart-modal');
