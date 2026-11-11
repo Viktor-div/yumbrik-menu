@@ -398,4 +398,387 @@
                 const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
                 const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
                 return matchesCategory && matchesSearch;
-            }).sort((a, b) => (b.available ? 1 : 0
+            }).sort((a, b) => (b.available ? 1 : 0) - (a.available ? 1 : 0));
+        }
+
+        function renderMenu() {
+            const container = document.getElementById('menu-container');
+            const itemsCount = document.getElementById('items-count');
+            if (!container) return;
+
+            const filtered = getFilteredItems();
+            if (itemsCount) itemsCount.textContent = `${filtered.length} позиций`;
+
+            container.className = viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "space-y-2.5";
+            container.innerHTML = filtered.map(item => viewMode === 'grid' ? renderGridCard(item) : renderCompactCard(item)).join('');
+        }
+
+        function renderGridCard(item) {
+            const isAvail = item.available;
+            
+            const cartEntries = cart.filter(entry => entry.item.id === item.id);
+            const qty = cartEntries.reduce((sum, entry) => sum + entry.quantity, 0);
+
+            const mediaHtml = item.image 
+                ? `<div class="relative mb-3">
+                    <img src="${item.image}" alt="${item.name}" class="w-full h-44 rounded-xl object-cover shadow-sm border border-stone-100 cursor-pointer ${!isAvail ? 'grayscale opacity-75' : ''}" loading="lazy" onclick="openItemModal('${item.id}')">
+                    ${!isAvail ? `<span class="absolute top-2 left-2 bg-stone-900/85 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Закончилось</span>` : ''}
+                   </div>`
+                : `<div class="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center text-brand-600 shrink-0 mb-2 cursor-pointer" onclick="openItemModal('${item.id}')">
+                    <i class="fa-solid ${item.icon} text-lg"></i>
+                   </div>`;
+
+            return `
+                <div class="bg-white rounded-2xl p-4 border border-stone-100 shadow-sm transition-all flex flex-col justify-between ${!isAvail ? 'opacity-60 bg-stone-50/50' : 'hover:shadow-md'}">
+                    <div>
+                        ${mediaHtml}
+                        <div class="flex items-start justify-between gap-2 mb-1">
+                            <h3 onclick="openItemModal('${item.id}')" class="font-bold text-stone-900 text-base leading-snug cursor-pointer hover:text-brand-600 transition-colors">${item.name}</h3>
+                        </div>
+                        <p onclick="openItemModal('${item.id}')" class="text-xs text-stone-500 mt-1 leading-relaxed cursor-pointer line-clamp-2">${item.description}</p>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between">
+                        <div>
+                            <span class="font-bold text-brand-900 text-base">${item.price.toFixed(2)} <span class="text-xs font-normal">BYN</span></span>
+                        </div>
+                        
+                        ${!isAvail ? `
+                            <span class="text-xs font-medium text-stone-400 bg-stone-100 px-3 py-1.5 rounded-xl">Недоступно</span>
+                        ` : (qty > 0 ? `
+                            <div class="flex items-center gap-2 bg-stone-100 p-1 rounded-xl">
+                                <button onclick="event.stopPropagation(); changeCardQty('${item.id}', -1)" class="w-7 h-7 rounded-lg bg-white text-stone-700 shadow-sm flex items-center justify-center active:scale-95 transition-transform">
+                                    <i class="fa-solid fa-minus text-xs"></i>
+                                </button>
+                                <span class="text-xs font-bold w-4 text-center text-stone-800">${qty}</span>
+                                <button onclick="event.stopPropagation(); changeCardQty('${item.id}', 1)" class="w-7 h-7 rounded-lg bg-brand-500 text-white shadow-sm flex items-center justify-center active:scale-95 transition-transform">
+                                    <i class="fa-solid fa-plus text-xs"></i>
+                                </button>
+                            </div>
+                        ` : `
+                            <button onclick="event.stopPropagation(); changeCardQty('${item.id}', 1)" class="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-semibold shadow-sm active:scale-95 transition-all">
+                                Выбрать
+                            </button>
+                        `)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCompactCard(item) {
+            const isAvail = item.available;
+            const cartEntries = cart.filter(entry => entry.item.id === item.id);
+            const qty = cartEntries.reduce((sum, entry) => sum + entry.quantity, 0);
+
+            return `
+                <div class="bg-white rounded-xl p-3 border border-stone-100 shadow-sm flex items-center justify-between gap-3 ${!isAvail ? 'opacity-60' : ''}">
+                    <div class="flex items-center gap-3 cursor-pointer flex-1" onclick="openItemModal('${item.id}')">
+                        <div class="min-w-0">
+                            <h3 class="font-bold text-stone-900 text-xs truncate">${item.name}</h3>
+                            <p class="text-[11px] text-stone-400">${item.price.toFixed(2)} BYN</p>
+                        </div>
+                    </div>
+                    ${!isAvail ? `<span class="text-xs text-stone-400">Нет</span>` : (qty > 0 ? `
+                        <div class="flex items-center gap-1.5 bg-stone-100 p-0.5 rounded-lg">
+                            <button onclick="event.stopPropagation(); changeCardQty('${item.id}', -1)" class="w-6 h-6 rounded bg-white text-stone-700 flex items-center justify-center">
+                                <i class="fa-solid fa-minus text-[10px]"></i>
+                            </button>
+                            <span class="text-xs font-bold w-3 text-center text-stone-800">${qty}</span>
+                            <button onclick="event.stopPropagation(); changeCardQty('${item.id}', 1)" class="w-6 h-6 rounded bg-brand-500 text-white flex items-center justify-center">
+                                <i class="fa-solid fa-plus text-[10px]"></i>
+                            </button>
+                        </div>
+                    ` : `
+                        <button onclick="event.stopPropagation(); changeCardQty('${item.id}', 1)" class="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center"><i class="fa-solid fa-plus text-xs"></i></button>
+                    `)}
+                </div>
+            `;
+        }
+
+        function openItemModal(itemId) {
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+
+            activeModalItem = item;
+            selectedExtrasModal = [];
+
+            const modal = document.getElementById('item-modal');
+            const availableExtras = allExtras.filter(e => e.category === 'все' || e.category === item.category);
+
+            renderModalContent(availableExtras);
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            if (modal.firstElementChild) modal.firstElementChild.classList.remove('translate-y-full');
+        }
+
+        function toggleExtra(extraName) {
+            const index = selectedExtrasModal.findIndex(e => e.name === extraName);
+            if (index > -1) {
+                selectedExtrasModal.splice(index, 1);
+            } else {
+                const extraObj = allExtras.find(e => e.name === extraName);
+                if (extraObj) selectedExtrasModal.push(extraObj);
+            }
+            const availableExtras = allExtras.filter(e => e.category === 'все' || e.category === activeModalItem.category);
+            renderModalContent(availableExtras);
+        }
+
+        function renderModalContent(availableExtras) {
+            const body = document.getElementById('item-modal-body');
+            const item = activeModalItem;
+
+            let extrasSum = selectedExtrasModal.reduce((sum, e) => sum + e.price, 0);
+            let totalPrice = item.price + extrasSum;
+
+            const imageHtml = item.image 
+                ? `<div class="mb-4 -mx-6 -mt-6">
+                    <img src="${item.image}" alt="${item.name}" class="w-full h-56 object-cover sm:rounded-t-3xl">
+                   </div>`
+                : '';
+
+            body.innerHTML = `
+                ${imageHtml}
+                <div>
+                    <h3 class="font-serif font-bold text-2xl text-stone-900">${item.name}</h3>
+                    <div class="font-extrabold text-brand-600 text-xl mt-1">${totalPrice.toFixed(2)} BYN</div>
+                </div>
+
+                <div class="bg-stone-50 rounded-2xl p-4 border border-stone-100">
+                    <h4 class="font-bold text-xs uppercase tracking-wider text-stone-400 mb-1">Состав</h4>
+                    <p class="text-sm text-stone-700">${item.ingredients || item.description || 'Классический рецепт'}</p>
+                </div>
+
+                ${availableExtras.length > 0 ? `
+                    <div class="space-y-2 pt-2">
+                        <h4 class="font-bold text-xs uppercase tracking-wider text-stone-400">Добавки и топпинги:</h4>
+                        <div class="space-y-1.5">
+                            ${availableExtras.map(ex => {
+                                const isChecked = selectedExtrasModal.some(e => e.name === ex.name);
+                                return `
+                                    <label onclick="toggleExtra('${ex.name}')" class="flex items-center justify-between p-3 rounded-xl border ${isChecked ? 'border-brand-500 bg-brand-50/50' : 'border-stone-200 bg-white'} cursor-pointer transition-all">
+                                        <div class="flex items-center gap-2.5">
+                                            <input type="checkbox" ${isChecked ? 'checked' : ''} class="w-4 h-4 accent-brand-500 rounded">
+                                            <span class="text-xs font-semibold text-stone-800">${ex.name}</span>
+                                        </div>
+                                        <span class="text-xs font-bold text-brand-600">+${ex.price.toFixed(2)} BYN</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+
+                <button onclick="addToCartCurrent()" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white rounded-2xl text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2 mt-4">
+                    <i class="fa-solid fa-plus text-xs"></i> Добавить в заказ за ${totalPrice.toFixed(2)} BYN
+                </button>
+            `;
+        }
+
+        function addToCartCurrent() {
+            if (!activeModalItem) return;
+
+            cart.push({
+                item: activeModalItem,
+                extras: [...selectedExtrasModal],
+                quantity: 1
+            });
+
+            updateCartBar();
+            renderMenu();
+            closeItemModal();
+        }
+
+        function closeItemModal() {
+            const modal = document.getElementById('item-modal');
+            if (modal) {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                if (modal.firstElementChild) modal.firstElementChild.classList.add('translate-y-full');
+            }
+        }
+
+        function changeCardQty(itemId, change) {
+            const item = items.find(i => i.id === itemId);
+            if (!item || !item.available) return;
+
+            const index = cart.findIndex(entry => entry.item.id === itemId && entry.extras.length === 0);
+
+            if (change > 0) {
+                if (index > -1) {
+                    cart[index].quantity += 1;
+                } else {
+                    cart.push({
+                        item: item,
+                        extras: [],
+                        quantity: 1
+                    });
+                }
+            } else if (change < 0 && index > -1) {
+                if (cart[index].quantity > 1) {
+                    cart[index].quantity -= 1;
+                } else {
+                    cart.splice(index, 1);
+                }
+            }
+
+            renderMenu();
+            updateCartBar();
+        }
+
+        function openCartModal() {
+            const modal = document.getElementById('cart-modal');
+            const list = document.getElementById('cart-items-list');
+            const modalCount = document.getElementById('cart-modal-count');
+            const modalTotal = document.getElementById('cart-modal-total');
+
+            let html = '';
+            let totalPrice = 0;
+            let totalItemsCount = 0;
+
+            cart.forEach((entry, idx) => {
+                let singlePrice = entry.item.price + entry.extras.reduce((s, e) => s + e.price, 0);
+                let entryTotal = singlePrice * entry.quantity;
+                totalPrice += entryTotal;
+                totalItemsCount += entry.quantity;
+
+                let extrasText = entry.extras.length > 0 
+                    ? `<p class="text-[11px] text-brand-600 mt-0.5">+ ${entry.extras.map(e => e.name).join(', ')}</p>` 
+                    : '';
+
+                html += `
+                    <div class="py-3 flex items-center justify-between gap-3">
+                        <div class="min-w-0 flex-1">
+                            <h4 class="font-bold text-stone-900 text-sm truncate">${entry.item.name}</h4>
+                            ${extrasText}
+                            <p class="text-xs text-stone-400 mt-0.5">${entryTotal.toFixed(2)} BYN</p>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-1.5 bg-stone-100 p-1 rounded-xl">
+                                <button onclick="changeCartQty(${idx}, -1)" class="w-7 h-7 rounded-lg bg-white text-stone-700 shadow-sm flex items-center justify-center active:scale-95 transition-transform">
+                                    <i class="fa-solid fa-minus text-[10px]"></i>
+                                </button>
+                                <span class="text-xs font-bold w-4 text-center text-stone-800">${entry.quantity}</span>
+                                <button onclick="changeCartQty(${idx}, 1)" class="w-7 h-7 rounded-lg bg-brand-500 text-white shadow-sm flex items-center justify-center active:scale-95 transition-transform">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                            </div>
+
+                            <button onclick="removeFromCart(${idx})" class="w-7 h-7 rounded-lg bg-stone-100 hover:bg-red-50 text-stone-400 hover:text-red-500 flex items-center justify-center transition-colors" title="Удалить">
+                                <i class="fa-solid fa-trash text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (list) list.innerHTML = html || `<p class="text-center text-stone-400 py-6 text-sm">Корзина пуста</p>`;
+            if (modalCount) modalCount.textContent = totalItemsCount;
+            if (modalTotal) modalTotal.textContent = `${totalPrice.toFixed(2)} BYN`;
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            if (modal.firstElementChild) modal.firstElementChild.classList.remove('translate-y-full');
+        }
+
+        function changeCartQty(index, change) {
+            if (!cart[index]) return;
+
+            cart[index].quantity += change;
+
+            if (cart[index].quantity <= 0) {
+                cart.splice(index, 1);
+            }
+
+            renderMenu();
+            updateCartBar();
+            openCartModal();
+        }
+
+        function updateCartBar() {
+            const cartBar = document.getElementById('cart-bar');
+            const cartBadge = document.getElementById('cart-badge');
+            const cartTotal = document.getElementById('cart-total');
+
+            const totalCount = cart.reduce((sum, entry) => sum + entry.quantity, 0);
+            let totalPrice = 0;
+
+            cart.forEach(entry => {
+                let entryPrice = entry.item.price + entry.extras.reduce((s, e) => s + e.price, 0);
+                totalPrice += entryPrice * entry.quantity;
+            });
+
+            if (totalCount > 0) {
+                if (cartBadge) cartBadge.textContent = totalCount;
+                if (cartTotal) cartTotal.textContent = `${totalPrice.toFixed(2)} BYN`;
+                cartBar.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+            } else {
+                cartBar.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+                closeCartModal();
+            }
+        }
+
+        function removeFromCart(idx) {
+            cart.splice(idx, 1);
+            renderMenu();
+            updateCartBar();
+            openCartModal();
+        }
+
+        function clearCart() {
+            cart = [];
+            renderMenu();
+            updateCartBar();
+            closeCartModal();
+        }
+
+        function closeCartModal() {
+            const modal = document.getElementById('cart-modal');
+            if (modal) {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                if (modal.firstElementChild) modal.firstElementChild.classList.add('translate-y-full');
+            }
+        }
+
+        function setCategory(catId) {
+            activeCategory = catId;
+            renderCategories();
+            renderMenu();
+        }
+
+        function handleSearch() {
+            searchQuery = document.getElementById('search-input').value;
+            renderMenu();
+        }
+
+        function clearSearch() {
+            document.getElementById('search-input').value = '';
+            searchQuery = '';
+            renderMenu();
+        }
+
+        function resetFilters() {
+            activeCategory = 'all';
+            clearSearch();
+            renderCategories();
+        }
+
+        function toggleView() {
+            viewMode = viewMode === 'grid' ? 'compact' : 'grid';
+            renderMenu();
+        }
+
+        function openInfoModal() {
+            const modal = document.getElementById('info-modal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            if (modal.firstElementChild) modal.firstElementChild.classList.remove('translate-y-full');
+        }
+
+        function closeInfoModal() {
+            const modal = document.getElementById('info-modal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            if (modal.firstElementChild) modal.firstElementChild.classList.add('translate-y-full');
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchMenuFromGoogleSheet);
+    </script>
+</body>
+</html>
