@@ -445,12 +445,21 @@ function updateBannerDots(activeIndex) {
         }
 
         function getFilteredItems() {
-            return items.filter(item => {
-                const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
-                const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-                return matchesCategory && matchesSearch;
-            }).sort((a, b) => (b.available ? 1 : 0) - (a.available ? 1 : 0));
-        }
+    const query = searchQuery.toLowerCase().trim();
+    return items.filter(item => {
+        const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
+        
+        if (!query) return matchesCategory;
+
+        const matchesSearch = 
+            item.name.toLowerCase().includes(query) ||
+            (item.subcategory && item.subcategory.toLowerCase().includes(query)) ||
+            (item.categoryTitle && item.categoryTitle.toLowerCase().includes(query)) ||
+            (item.ingredients && item.ingredients.toLowerCase().includes(query));
+
+        return matchesCategory && matchesSearch;
+    }).sort((a, b) => (b.available ? 1 : 0) - (a.available ? 1 : 0));
+}
 
         function renderMenu() {
             const container = document.getElementById('menu-container');
