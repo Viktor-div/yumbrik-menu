@@ -520,34 +520,41 @@ function updateBannerDots(activeIndex) {
         }
 
         function renderCompactCard(item) {
-            const isAvail = item.available;
-            const cartEntries = cart.filter(entry => entry.item.id === item.id);
-            const qty = cartEntries.reduce((sum, entry) => sum + entry.quantity, 0);
+    const isAvail = item.available;
+    const cartEntries = cart.filter(entry => entry.item.id === item.id);
+    const qty = cartEntries.reduce((sum, entry) => sum + entry.quantity, 0);
 
-            return `
-                <div class="bg-white rounded-xl p-3 border border-stone-100 shadow-sm flex items-center justify-between gap-3 ${!isAvail ? 'opacity-60' : ''}">
-                    <div class="flex items-center gap-3 cursor-pointer flex-1" onclick="openItemModal('${item.id}')">
-                        <div class="min-w-0">
-                            <h3 class="font-bold text-stone-900 text-xs truncate">${item.name}</h3>
-                            <p class="text-[11px] text-stone-400">${item.price.toFixed(2)} BYN</p>
-                        </div>
-                    </div>
-                    ${!isAvail ? `<span class="text-xs text-stone-400">Нет</span>` : (qty > 0 ? `
-                        <div class="flex items-center gap-1.5 bg-stone-100 p-0.5 rounded-lg">
-                            <button onclick="event.stopPropagation(); changeCardQty('${item.id}', -1)" class="w-6 h-6 rounded bg-white text-stone-700 flex items-center justify-center">
-                                <i class="fa-solid fa-minus text-[10px]"></i>
-                            </button>
-                            <span class="text-xs font-bold w-3 text-center text-stone-800">${qty}</span>
-                            <button onclick="event.stopPropagation(); changeCardQty('${item.id}', 1)" class="w-6 h-6 rounded bg-brand-500 text-white flex items-center justify-center">
-                                <i class="fa-solid fa-plus text-[10px]"></i>
-                            </button>
-                        </div>
-                    ` : `
-                        <button onclick="event.stopPropagation(); changeCardQty('${item.id}', 1)" class="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center"><i class="fa-solid fa-plus text-xs"></i></button>
-                    `)}
+    const thumbHtml = item.image
+        ? `<img src="${item.image}" alt="${item.name}" class="w-12 h-12 rounded-lg object-cover shrink-0 border border-stone-100 ${!isAvail ? 'grayscale opacity-75' : ''}" loading="lazy">`
+        : `<div class="w-12 h-12 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 shrink-0">
+            <i class="fa-solid ${item.icon} text-sm"></i>
+           </div>`;
+
+    return `
+        <div class="bg-white rounded-xl p-2.5 border border-stone-100 shadow-sm flex items-center justify-between gap-3 ${!isAvail ? 'opacity-60' : ''}">
+            <div class="flex items-center gap-3 cursor-pointer flex-1 min-w-0" onclick="openItemModal('${item.id}')">
+                ${thumbHtml}
+                <div class="min-w-0">
+                    <h3 class="font-bold text-stone-900 text-xs truncate">${item.name}</h3>
+                    <p class="text-[11px] text-stone-400 mt-0.5">${item.price.toFixed(2)} BYN</p>
                 </div>
-            `;
-        }
+            </div>
+            ${!isAvail ? `<span class="text-xs text-stone-400 shrink-0">Нет</span>` : (qty > 0 ? `
+                <div class="flex items-center gap-1.5 bg-stone-100 p-0.5 rounded-lg shrink-0">
+                    <button onclick="event.stopPropagation(); changeCardQty('${item.id}', -1)" class="w-6 h-6 rounded bg-white text-stone-700 flex items-center justify-center">
+                        <i class="fa-solid fa-minus text-[10px]"></i>
+                    </button>
+                    <span class="text-xs font-bold w-3 text-center text-stone-800">${qty}</span>
+                    <button onclick="event.stopPropagation(); changeCardQty('${item.id}', 1)" class="w-6 h-6 rounded bg-brand-500 text-white flex items-center justify-center">
+                        <i class="fa-solid fa-plus text-[10px]"></i>
+                    </button>
+                </div>
+            ` : `
+                <button onclick="event.stopPropagation(); changeCardQty('${item.id}', 1)" class="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-plus text-xs"></i></button>
+            `)}
+        </div>
+    `;
+}
 
         function openItemModal(itemId) {
             const item = items.find(i => i.id === itemId);
@@ -899,9 +906,13 @@ function resetFilters() {
 }
 
         function toggleView() {
-            viewMode = viewMode === 'grid' ? 'compact' : 'grid';
-            renderMenu();
-        }
+    viewMode = viewMode === 'grid' ? 'compact' : 'grid';
+    const icon = document.getElementById('view-icon');
+    if (icon) {
+        icon.className = viewMode === 'grid' ? 'fa-solid fa-list text-sm' : 'fa-solid fa-border-all text-sm';
+    }
+    renderMenu();
+}
 
         function openInfoModal() {
             const modal = document.getElementById('info-modal');
