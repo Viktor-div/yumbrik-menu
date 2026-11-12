@@ -75,7 +75,7 @@
             </div>
 
             <nav class="flex gap-2 overflow-x-auto no-scrollbar py-0.5 -mx-4 px-4 scroll-smooth" id="categories-nav"></nav>
-            <nav class="hidden flex gap-1.5 overflow-x-auto no-scrollbar pt-1 pb-1 -mx-4 px-4 pr-8 pe-8 scroll-smooth border-t border-stone-200/50" id="subcategories-nav"></nav>
+            <nav class="hidden flex gap-1.5 overflow-x-auto md:overflow-visible md:flex-wrap no-scrollbar pt-1.5 pb-1 -mx-4 px-4 md:mx-0 md:px-0 scroll-smooth border-t border-stone-200/50" id="subcategories-nav"></nav>
         </div>
     </header>
 
@@ -858,17 +858,17 @@ function renderSubcategories() {
         ...Array.from(subs).map(s => ({ id: s.toLowerCase(), name: s.charAt(0).toUpperCase() + s.slice(1) }))
     ];
 
+    // ВОТ ЭТОТ БЛОК:
     subNav.classList.remove('hidden');
-    // Обратите внимание на flex-shrink-0 и whitespace-nowrap для предотвращения сжатия
     subNav.innerHTML = subList.map((sub, idx) => {
         const isLast = idx === subList.length - 1;
         return `
             <button onclick="setSubcategory('${sub.id}')" 
-                class="flex-shrink-0 whitespace-nowrap px-3 py-1 rounded-lg text-[11px] font-semibold transition-all ${isLast ? 'mr-8' : ''} ${activeSubcategory === sub.id ? 'bg-brand-800 text-white shadow-sm' : 'bg-stone-200/70 text-stone-600 hover:bg-stone-200'}">
+                class="flex-shrink-0 whitespace-nowrap px-3 py-1 rounded-lg text-[11px] font-semibold transition-all ${isLast ? 'mr-8 md:mr-0' : ''} ${activeSubcategory === sub.id ? 'bg-brand-800 text-white shadow-sm' : 'bg-stone-200/70 text-stone-600 hover:bg-stone-200'}">
                 ${sub.name}
             </button>
         `;
-    }).join('') + '<div class="w-8 shrink-0"></div>'; // Дополнительный невидимый элемент-отступ в самом конце списка для надежности скролла
+    }).join('') + '<div class="w-8 shrink-0 md:hidden"></div>';
 }
 
 function getFilteredItems() {
