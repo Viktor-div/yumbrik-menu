@@ -75,6 +75,7 @@
             </div>
 
             <nav class="flex gap-2 overflow-x-auto no-scrollbar py-0.5 -mx-4 px-4 scroll-smooth" id="categories-nav"></nav>
+            <nav class="hidden flex gap-1.5 overflow-x-auto no-scrollbar pt-1 pb-0.5 -mx-4 px-4 scroll-smooth border-t border-stone-200/50" id="subcategories-nav"></nav>
         </div>
     </header>
 
@@ -216,6 +217,7 @@
 
         let categories = [{ id: 'all', name: 'Все', icon: 'fa-border-all' }];
         let activeCategory = 'all';
+        let activeSubcategory = 'all';
         let searchQuery = '';
         let viewMode = 'grid';
         let cart = []; // [{ item, extras, quantity }]
@@ -444,23 +446,7 @@ function updateBannerDots(activeIndex) {
             `).join('');
         }
 
-        function getFilteredItems() {
-    const query = searchQuery.toLowerCase().trim();
-    return items.filter(item => {
-        const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
         
-        if (!query) return matchesCategory;
-
-        const matchesSearch = 
-            item.name.toLowerCase().includes(query) ||
-            (item.subcategory && item.subcategory.toLowerCase().includes(query)) ||
-            (item.categoryTitle && item.categoryTitle.toLowerCase().includes(query)) ||
-            (item.ingredients && item.ingredients.toLowerCase().includes(query));
-
-        return matchesCategory && matchesSearch;
-    }).sort((a, b) => (b.available ? 1 : 0) - (a.available ? 1 : 0));
-}
-
         function renderMenu() {
             const container = document.getElementById('menu-container');
             const itemsCount = document.getElementById('items-count');
@@ -798,11 +784,7 @@ function updateBannerDots(activeIndex) {
             }
         }
 
-        function setCategory(catId) {
-            activeCategory = catId;
-            renderCategories();
-            renderMenu();
-        }
+        
 
         function handleSearch() {
             searchQuery = document.getElementById('search-input').value;
@@ -815,11 +797,93 @@ function updateBannerDots(activeIndex) {
             renderMenu();
         }
 
-        function resetFilters() {
-            activeCategory = 'all';
-            clearSearch();
-            renderCategories();
+        function setCategory(catId) {
+    activeCategory = catId;
+    activeSubcategory = 'all'; // Сбрасываем подкатегорию при смене основной категории
+    
+    // Обновляем заголовок раздела
+    const catObj = categories.find(c => c.id === catId);
+    const titleEl = document.getElementById('current-category-title');
+    if (titleEl && catObj) {
+        titleEl.textContent = catId === 'all' ? 'Все меню' : catObj.name;
+    }
+
+    renderCategories();
+    renderSubcategories();
+    renderMenu();
+}
+
+function setSubcategory(subId) {
+    activeSubcategory = subId;
+    renderSubcategories();
+    renderMenu();
+}
+
+function renderSubcategories() {
+    const subNav = document.getElementById('subcategories-nav');
+    if (!subNav) return;
+
+    // Если выбрано "Все", скрываем панель подкатегорий
+    if (activeCategory === 'all') {
+        subNav.classList.add('hidden');
+        subNav.innerHTML = '';
+        return;
+    }
+
+    // Собираем уникальные подкатегории только для текущей активной категории
+    const subs = new Set();
+    items.forEach(item => {
+        if (item.category === activeCategory && item.subcategory) {
+            subs.add(item.subcategory.trim());
         }
+    });
+
+    // Если подкатегорий меньше 2 (или их вообще нет), панель не нужна
+    if (subs.size === 0) {
+        subNav.classList.add('hidden');
+        subNav.innerHTML = '';
+        return;
+    }
+
+    const subList = [
+        { id: 'all', name: 'Все' },
+        ...Array.from(subs).map(s => ({ id: s.toLowerCase(), name: s.charAt(0).toUpperCase() + s.slice(1) }))
+    ];
+
+    subNav.classList.remove('hidden');
+    subNav.innerHTML = subList.map(sub => `
+        <button onclick="setSubcategory('${sub.id}')" class="px-3 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all ${activeSubcategory === sub.id ? 'bg-brand-800 text-white shadow-sm' : 'bg-stone-200/70 text-stone-600 hover:bg-stone-200'}">
+            ${sub.name}
+        </button>
+    `).join('');
+}
+
+function getFilteredItems() {
+    const query = searchQuery.toLowerCase().trim();
+    return items.filter(item => {
+        const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
+        const matchesSubcategory = activeSubcategory === 'all' || (item.subcategory && item.subcategory.toLowerCase().trim() === activeSubcategory);
+        
+        if (!query) return matchesCategory && matchesSubcategory;
+
+        const matchesSearch = 
+            item.name.toLowerCase().includes(query) ||
+            (item.subcategory && item.subcategory.toLowerCase().includes(query)) ||
+            (item.categoryTitle && item.categoryTitle.toLowerCase().includes(query)) ||
+            (item.ingredients && item.ingredients.toLowerCase().includes(query));
+
+        return matchesCategory && matchesSubcategory && matchesSearch;
+    }).sort((a, b) => (b.available ? 1 : 0) - (a.available ? 1 : 0));
+}
+
+function resetFilters() {
+    activeCategory = 'all';
+    activeSubcategory = 'all';
+    clearSearch();
+    renderCategories();
+    renderSubcategories();
+    renderMenu();
+}
 
         function toggleView() {
             viewMode = viewMode === 'grid' ? 'compact' : 'grid';
