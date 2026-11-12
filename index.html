@@ -448,16 +448,24 @@ function updateBannerDots(activeIndex) {
 
         
         function renderMenu() {
-            const container = document.getElementById('menu-container');
-            const itemsCount = document.getElementById('items-count');
-            if (!container) return;
+    const container = document.getElementById('menu-container');
+    const itemsCount = document.getElementById('items-count');
+    const emptyState = document.getElementById('empty-state');
+    if (!container) return;
 
-            const filtered = getFilteredItems();
-            if (itemsCount) itemsCount.textContent = `${filtered.length} позиций`;
+    const filtered = getFilteredItems();
+    if (itemsCount) itemsCount.textContent = `${filtered.length} позиций`;
 
-            container.className = viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "space-y-2.5";
-            container.innerHTML = filtered.map(item => viewMode === 'grid' ? renderGridCard(item) : renderCompactCard(item)).join('');
-        }
+    if (filtered.length === 0) {
+        container.innerHTML = '';
+        if (emptyState) emptyState.classList.remove('hidden');
+        return;
+    }
+
+    if (emptyState) emptyState.classList.add('hidden');
+    container.className = viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "space-y-2.5";
+    container.innerHTML = filtered.map(item => viewMode === 'grid' ? renderGridCard(item) : renderCompactCard(item)).join('');
+}
 
         function renderGridCard(item) {
             const isAvail = item.available;
