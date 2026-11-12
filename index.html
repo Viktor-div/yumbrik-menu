@@ -303,20 +303,71 @@
             renderSpecialsSlider();
         }
 
-        function renderSpecialsSlider() {
-            const container = document.getElementById('banner-container');
-            if (!container) return;
-            container.innerHTML = specials.map(s => `
-                <div class="w-full shrink-0 snap-center p-4 min-h-[120px] bg-gradient-to-r from-brand-900 via-stone-900 to-brand-800 text-white relative overflow-hidden flex items-center justify-between cursor-pointer" onclick="handleBannerClick('${s.itemName}')">
-                    <div class="relative z-10 max-w-[80%]">
-                        <span class="bg-brand-500/30 text-brand-200 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider mb-1 inline-block border border-brand-500/40">${s.badge}</span>
-                        <h2 class="font-serif text-lg font-bold leading-snug">${s.title}</h2>
-                        ${s.subtitle ? `<p class="text-xs text-stone-300 mt-1">${s.subtitle}</p>` : ''}
-                    </div>
-                    ${s.image ? `<img src="${s.image}" class="w-20 h-20 object-cover rounded-xl shadow-md border border-white/10 shrink-0 ml-2 relative z-10">` : `<i class="fa-solid fa-mug-hot absolute -right-3 -bottom-3 text-7xl text-white/5 transform -rotate-12"></i>`}
-                </div>
+        let bannerInterval = null;
+
+function renderSpecialsSlider() {
+    const container = document.getElementById('banner-container');
+    const dotsContainer = document.getElementById('banner-dots');
+    if (!container) return;
+
+    container.innerHTML = specials.map(s => `
+        <div class="w-full shrink-0 snap-center p-4 min-h-[120px] bg-gradient-to-r from-brand-900 via-stone-900 to-brand-800 text-white relative overflow-hidden flex items-center justify-between cursor-pointer" onclick="handleBannerClick('${s.itemName}')">
+            <div class="relative z-10 max-w-[80%]">
+                <span class="bg-brand-500/30 text-brand-200 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider mb-1 inline-block border border-brand-500/40">${s.badge}</span>
+                <h2 class="font-serif text-lg font-bold leading-snug">${s.title}</h2>
+                ${s.subtitle ? `<p class="text-xs text-stone-300 mt-1">${s.subtitle}</p>` : ''}
+            </div>
+            ${s.image ? `<img src="${s.image}" class="w-20 h-20 object-cover rounded-xl shadow-md border border-white/10 shrink-0 ml-2 relative z-10">` : `<i class="fa-solid fa-mug-hot absolute -right-3 -bottom-3 text-7xl text-white/5 transform -rotate-12"></i>`}
+        </div>
+    `).join('');
+
+    if (bannerInterval) clearInterval(bannerInterval);
+
+    if (specials.length > 1) {
+        if (dotsContainer) {
+            dotsContainer.innerHTML = specials.map((_, idx) => `
+                <button onclick="scrollToBanner(${idx})" class="banner-dot w-2 h-2 rounded-full transition-all ${idx === 0 ? 'bg-brand-500 w-4' : 'bg-stone-300'}"></button>
             `).join('');
         }
+
+        let currentSlide = 0;
+        bannerInterval = setInterval(() => {
+            currentSlide = (currentSlide + 1) % specials.length;
+            scrollToBanner(currentSlide);
+        }, 5000);
+
+        container.addEventListener('scroll', () => {
+            const index = Math.round(container.scrollLeft / container.clientWidth);
+            currentSlide = index;
+            updateBannerDots(index);
+        }, { passive: true });
+    } else if (dotsContainer) {
+        dotsContainer.innerHTML = '';
+    }
+}
+
+function scrollToBanner(index) {
+    const container = document.getElementById('banner-container');
+    if (!container) return;
+    container.scrollTo({
+        left: index * container.clientWidth,
+        behavior: 'smooth'
+    });
+    updateBannerDots(index);
+}
+
+function updateBannerDots(activeIndex) {
+    const dots = document.querySelectorAll('.banner-dot');
+    dots.forEach((dot, idx) => {
+        if (idx === activeIndex) {
+            dot.classList.add('bg-brand-500', 'w-4');
+            dot.classList.remove('bg-stone-300');
+        } else {
+            dot.classList.remove('bg-brand-500', 'w-4');
+            dot.classList.add('bg-stone-300');
+        }
+    });
+}
 
         function handleBannerClick(itemName) {
             if (!itemName) return;
