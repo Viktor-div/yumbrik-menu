@@ -35,6 +35,97 @@
                 }
             }
         }
+
+        let orderMode = 'dinein'; // 'dinein' | 'takeaway'
+        let minAllowedTotalMinutes = 0;
+
+        function setOrderMode(mode) {
+            orderMode = mode;
+            const dineBtn = document.getElementById('mode-dinein');
+            const takeBtn = document.getElementById('mode-takeaway');
+
+            const activeClasses = ['bg-white', 'text-brand-900', 'shadow-sm'];
+            const inactiveClasses = ['text-stone-500', 'hover:text-stone-800'];
+
+            if (mode === 'dinein') {
+                dineBtn.classList.add(...activeClasses);
+                dineBtn.classList.remove(...inactiveClasses);
+                takeBtn.classList.remove(...activeClasses);
+                takeBtn.classList.add(...inactiveClasses);
+            } else {
+                takeBtn.classList.add(...activeClasses);
+                takeBtn.classList.remove(...inactiveClasses);
+                dineBtn.classList.remove(...activeClasses);
+                dineBtn.classList.add(...inactiveClasses);
+            }
+        }
+
+        function initPickupTimeSelectors() {
+            const hourSelect = document.getElementById('pickup-hour');
+            const hintEl = document.getElementById('min-time-hint');
+            if (!hourSelect) return;
+
+            const now = new Date();
+            // Добавляем 15 минут и округляем вверх до кратных 5 минутам
+            const earliest = new Date(now.getTime() + 15 * 60 * 1000);
+            const step = 5;
+            const currentMins = earliest.getMinutes();
+            const roundedMins = Math.ceil(currentMins / step) * step;
+
+            if (roundedMins === 60) {
+                earliest.setHours(earliest.getHours() + 1);
+                earliest.setMinutes(0);
+            } else {
+                earliest.setMinutes(roundedMins);
+            }
+            earliest.setSeconds(0);
+
+            const minHour = earliest.getHours();
+            const minMinute = earliest.getMinutes();
+            minAllowedTotalMinutes = minHour * 60 + minMinute;
+
+            if (hintEl) {
+                const hh = String(minHour).padStart(2, '0');
+                const mm = String(minMinute).padStart(2, '0');
+                hintEl.textContent = `Не раньше ${hh}:${mm}`;
+            }
+
+            // Часы работы кофейни: 09:00 – 21:00
+            const startHour = Math.max(9, minHour);
+            const endHour = 21;
+
+            let hourOptions = '';
+            for (let h = startHour; h <= endHour; h++) {
+                // Если для часа в рамках режима работы нет доступных минут — пропускаем
+                if (h === 21 && minAllowedTotalMinutes > 21 * 60) continue;
+                const hh = String(h).padStart(2, '0');
+                hourOptions += `<option value="${h}">${hh} ч</option>`;
+            }
+
+            hourSelect.innerHTML = hourOptions || `<option value="${minHour}">${String(minHour).padStart(2, '0')} ч</option>`;
+            populatePickupMinutes();
+        }
+
+        function populatePickupMinutes() {
+            const hourSelect = document.getElementById('pickup-hour');
+            const minuteSelect = document.getElementById('pickup-minute');
+            if (!hourSelect || !minuteSelect) return;
+
+            const selectedHour = parseInt(hourSelect.value, 10);
+            const step = 5;
+            let minuteOptions = '';
+
+            for (let m = 0; m < 60; m += step) {
+                if (selectedHour === 21 && m > 0) break; // Закрытие в 21:00
+                const totalMins = selectedHour * 60 + m;
+                if (totalMins >= minAllowedTotalMinutes) {
+                    const mm = String(m).padStart(2, '0');
+                    minuteOptions += `<option value="${m}">${mm} мин</option>`;
+                }
+            }
+
+            minuteSelect.innerHTML = minuteOptions;
+        }
     </script>
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -191,7 +282,66 @@
             </div>
 
             <div id="cart-items-list" class="flex-1 overflow-y-auto space-y-3 pr-1 divide-y divide-stone-100"></div>
+<!-- Checkout Form -->
+            <form id="checkout-form" onsubmit="submitOrder(event)" class="hidden pt-4 border-t border-stone-100 mt-3 space-y-3">
+                <h4 class="font-bold text-xs uppercase tracking-wider text-stone-400">Данные для заказа</h4>
 
+                <!-- На месте / С собой -->
+                <div class="grid grid-cols-2 gap-2 bg-stone-100 p-1 rounded-xl">
+                    <button type="button" id="mode-dinein" onclick="setOrderMode('dinein')"
+                        class="py-2 px-3 rounded-lg text-xs font-bold transition-all bg-white text-brand-900 shadow-sm flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-chair text-brand-600"></i> На месте
+                    </button>
+                    <button type="button" id="mode-takeaway" onclick="setOrderMode('takeaway')"
+                        class="py-2 px-3 rounded-lg text-xs font-bold transition-all text-stone-500 hover:text-stone-800 flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-bag-shopping text-brand-600"></i> С собой
+                    </button>
+                </div>
+
+                <!-- Имя и Телефон -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                        <label for="customer-name" class="block text-[11px] font-semibold text-stone-500 mb-1">Имя *</label>
+                        <input type="text" id="customer-name" required placeholder="Например, Анна"
+                            class="w-full px-3 py-2 bg-stone-50 focus:bg-white text-sm rounded-xl border border-stone-200 focus:border-brand-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label for="customer-phone" class="block text-[11px] font-semibold text-stone-500 mb-1">Телефон *</label>
+                        <input type="tel" id="customer-phone" required placeholder="+375 (29) 000-00-00"
+                            class="w-full px-3 py-2 bg-stone-50 focus:bg-white text-sm rounded-xl border border-stone-200 focus:border-brand-500 outline-none transition-all">
+                    </div>
+                </div>
+
+                <!-- Ко времени: Час и Минуты (не ранее +15 мин) -->
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="text-[11px] font-semibold text-stone-500">К какому времени готовить *</label>
+                        <span id="min-time-hint" class="text-[11px] text-brand-600 font-medium"></span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div class="relative">
+                            <select id="pickup-hour" onchange="populatePickupMinutes()"
+                                class="w-full appearance-none px-3 py-2 bg-stone-50 focus:bg-white text-sm font-semibold text-stone-800 rounded-xl border border-stone-200 focus:border-brand-500 outline-none transition-all pr-8">
+                            </select>
+                            <i class="fa-solid fa-chevron-down text-[10px] text-stone-400 pointer-events-none absolute right-3 top-1/2 -translate-y-1/2"></i>
+                        </div>
+                        <div class="relative">
+                            <select id="pickup-minute"
+                                class="w-full appearance-none px-3 py-2 bg-stone-50 focus:bg-white text-sm font-semibold text-stone-800 rounded-xl border border-stone-200 focus:border-brand-500 outline-none transition-all pr-8">
+                            </select>
+                            <i class="fa-solid fa-chevron-down text-[10px] text-stone-400 pointer-events-none absolute right-3 top-1/2 -translate-y-1/2"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Сообщение о статусе отправки -->
+                <div id="order-status" class="hidden text-xs rounded-xl p-2.5"></div>
+
+                <button type="submit" id="submit-order-btn"
+                    class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white rounded-2xl text-xs font-bold shadow-md active:scale-[0.99] transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Отправить заказ
+                </button>
+            </form>
             <div class="pt-4 border-t border-stone-100 mt-4 space-y-3">
                 <div class="flex justify-between items-center text-stone-600 text-sm">
                     <span>Всего позиций:</span>
@@ -748,6 +898,21 @@ function updateBannerDots(activeIndex) {
 
             modal.classList.remove('opacity-0', 'pointer-events-none');
             if (modal.firstElementChild) modal.firstElementChild.classList.remove('translate-y-full');
+        
+        const checkoutForm = document.getElementById('checkout-form');
+            const statusEl = document.getElementById('order-status');
+            if (statusEl) {
+                statusEl.classList.add('hidden');
+                statusEl.textContent = '';
+            }
+            if (checkoutForm) {
+                if (cart.length > 0) {
+                    checkoutForm.classList.remove('hidden');
+                    initPickupTimeSelectors();
+                } else {
+                    checkoutForm.classList.add('hidden');
+                }
+            }
         }
 
         function changeCartQty(index, change) {
@@ -945,6 +1110,48 @@ function resetFilters() {
         });
 
         document.addEventListener('DOMContentLoaded', fetchMenuFromGoogleSheet);
+    
+    function submitOrder(event) {
+            event.preventDefault();
+            if (cart.length === 0) return;
+
+            const name = document.getElementById('customer-name').value.trim();
+            const phone = document.getElementById('customer-phone').value.trim();
+            const hour = parseInt(document.getElementById('pickup-hour').value, 10);
+            const minute = parseInt(document.getElementById('pickup-minute').value, 10);
+            const statusEl = document.getElementById('order-status');
+
+            initPickupTimeSelectors();
+            if (hour * 60 + minute < minAllowedTotalMinutes) {
+                if (statusEl) {
+                    statusEl.className = 'text-xs rounded-xl p-2.5 bg-red-50 text-red-700 border border-red-200';
+                    statusEl.textContent = 'Выберите время не раньше чем через 15 минут от текущего момента.';
+                    statusEl.classList.remove('hidden');
+                }
+                return;
+            }
+
+            const pickupTime = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+            const orderPayload = {
+                mode: orderMode === 'dinein' ? 'На месте' : 'С собой',
+                customerName: name,
+                customerPhone: phone,
+                pickupTime,
+                items: cart.map(entry => ({
+                    name: entry.item.name,
+                    price: entry.item.price,
+                    quantity: entry.quantity,
+                    extras: entry.extras.map(e => ({ name: e.name, price: e.price }))
+                }))
+            };
+
+            console.log('Готовый заказ для бота:', orderPayload);
+            if (statusEl) {
+                statusEl.className = 'text-xs rounded-xl p-2.5 bg-emerald-50 text-emerald-800 border border-emerald-200';
+                statusEl.textContent = `Форма готова (${orderPayload.mode}, ко времени ${pickupTime}). Подключаем отправку в бота следующим шагом.`;
+                statusEl.classList.remove('hidden');
+            }
+        }
     </script>
 </body>
 </html>
