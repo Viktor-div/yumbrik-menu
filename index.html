@@ -423,6 +423,21 @@
             } catch (e) {
                 console.error("Ошибка загрузки добавок:", e);
             }
+                            allExtras = data.table.rows.map((row, index) => {
+                    const c = row.c;
+                    if (!c) return null;
+                    const priceRaw = getVal(c, 1);
+                    const priceVal = parseFloat(priceRaw.replace(/[^0-9.,]/g, '').replace(',', '.')) || 0;
+                    const activeRaw = getVal(c, 3).toUpperCase();
+                    return {
+                        id: String(index + 1),
+                        name: getVal(c, 0),
+                        price: priceVal,
+                        category: getVal(c, 2).toLowerCase(),
+                        active: activeRaw !== 'FALSE'
+                    };
+                }).filter(e => e && e.name && e.active);
+
         }
 
         async function fetchSpecials() {
@@ -1111,7 +1126,54 @@ function resetFilters() {
 
         document.addEventListener('DOMContentLoaded', fetchMenuFromGoogleSheet);
     
-    function submitOrder(event) {
+            const BOT_NAME = 'Yumbrik_Bot';
+
+        function buildCompactStartParam(pickupTime) {
+                    const BOT_NAME = 'Yumbrik_Bot';
+
+        function buildCompactStartParam(pickupTime) {
+            // Формат: w_<d|t>_<ЧЧММ>_<id>x<qty>e<ex1>-<ex2>.<id>x<qty>
+            const modeCode = orderMode === 'dinein' ? 'd' : 't';
+            const timeCode = pickupTime.replace(':', '');
+            const parts = cart.map(entry => {
+                const cleanId = String(entry.item.id).replace(/[^a-zA-Z0-9]/g, '');
+                let token = `${cleanId}x${entry.quantity}`;
+                if (entry.extras && entry.extras.length > 0) {
+                    const extraIds = entry.extras
+                        .map(e => String(e.id).replace(/[^a-zA-Z0-9]/g, ''))
+                        .filter(Boolean)
+                        .join('-');
+                    if (extraIds) token += `e${extraIds}`;
+                }
+                return token;
+            });
+            const payload = `w_${modeCode}_${timeCode}_${parts.join('.')}`;
+            return payload.length <= 64 ? payload : 'from_web';
+        }
+
+            // Формат: w_<режим:d|t>_<ЧЧММ>_<id>x<qty>.<id>x<qty>
+            const modeCode = orderMode === 'dinein' ? 'd' : 't';
+            const timeCode = pickupTime.replace(':', '');
+            const parts = cart.map(entry => {
+                const cleanId = String(entry.item.id).replace(/[^a-zA-Z0-9]/g, '');
+                return `${cleanId}x${entry.quantity}`;
+            });
+            const payload = `w_${modeCode}_${timeCode}_${parts.join('.')}`;
+            return payload.length <= 64 ? payload : 'from_web';
+        }
+
+        function buildHumanReadableOrder(pickupTime) {
+            const modeLabel = orderMode === 'dinein' ? 'На месте' : 'С собой';
+            const lines = cart.map(entry => {
+                const extrasStr = entry.extras.length > 0
+                    ? ` (+ ${entry.extras.map(e => e.name).join(', ')})`
+                    : '';
+                return `${entry.item.name}${extrasStr} — ${entry.quantity} шт.`;
+            });
+            return `Формат: ${modeLabel}, ко времени ${pickupTime}\n` + lines.join('\n');
+        }
+
+        function submitOrder(event) {
             event.preventDefault();
             if (cart.length === 0) return;
 
@@ -1132,26 +1194,31 @@ function resetFilters() {
             }
 
             const pickupTime = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-            const orderPayload = {
-                mode: orderMode === 'dinein' ? 'На месте' : 'С собой',
-                customerName: name,
-                customerPhone: phone,
-                pickupTime,
-                items: cart.map(entry => ({
-                    name: entry.item.name,
-                    price: entry.item.price,
-                    quantity: entry.quantity,
-                    extras: entry.extras.map(e => ({ name: e.name, price: e.price }))
-                }))
-            };
+            const readableText = buildHumanReadableOrder(pickupTime);
 
-            console.log('Готовый заказ для бота:', orderPayload);
+            try {
+                localStorage.setItem('yumbrik_customer_name', name);
+                localStorage.setItem('yumbrik_customer_phone', phone);
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(readableText).catch(() => {});
+                }
+            } catch (e) {}
+
+            const startParam = buildCompactStartParam(pickupTime);
+            const tgUrl = `https://t.me/${BOT_NAME}?start=${encodeURIComponent(startParam)}`;
+
             if (statusEl) {
                 statusEl.className = 'text-xs rounded-xl p-2.5 bg-emerald-50 text-emerald-800 border border-emerald-200';
-                statusEl.textContent = `Форма готова (${orderPayload.mode}, ко времени ${pickupTime}). Подключаем отправку в бота следующим шагом.`;
+                statusEl.innerHTML = `Открываем Telegram для завершения заказа... <a href="${tgUrl}" class="underline font-bold">Перейти в бота</a>`;
                 statusEl.classList.remove('hidden');
             }
+
+            window.location.href = tgUrl;
         }
+    </script>
+</body>
+</html>
+
     </script>
 </body>
 </html>
