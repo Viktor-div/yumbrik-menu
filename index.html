@@ -281,38 +281,13 @@
                 </button>
             </div>
 
-            <div id="cart-items-list" class="flex-1 overflow-y-auto space-y-3 pr-1 divide-y divide-stone-100"></div>
-<!-- Checkout Form -->
-                    const checkoutForm = document.getElementById('checkout-form');
-        const statusEl = document.getElementById('order-status');
-        if (statusEl) {
-            statusEl.classList.add('hidden');
-            statusEl.textContent = '';
-        }
-        if (checkoutForm) {
-            if (cart.length > 0) {
-                checkoutForm.classList.remove('hidden');
-                initPickupTimeSelectors();
+                        <div id="cart-items-list" class="flex-1 overflow-y-auto space-y-3 pr-1 divide-y divide-stone-100"></div>
 
-                try {
-                    const savedName = localStorage.getItem('yumbrik_customer_name');
-                    const savedPhone = localStorage.getItem('yumbrik_customer_phone');
-                    const nameInput = document.getElementById('customer-name');
-                    const phoneInput = document.getElementById('customer-phone');
+            <!-- Checkout Form -->
+            <form id="checkout-form" onsubmit="submitOrder(event)" class="hidden pt-4 border-t border-stone-100 mt-3 space-y-3">
 
-                    if (savedName && nameInput && !nameInput.value) {
-                        nameInput.value = savedName;
-                    }
-                    if (savedPhone && phoneInput && !phoneInput.value) {
-                        phoneInput.value = savedPhone;
-                    }
-                } catch (e) {}
-            } else {
-                checkoutForm.classList.add('hidden');
-            }
-        }
 
-<form id="checkout-form" onsubmit="submitOrder(event)" class="hidden pt-4 border-t border-stone-100 mt-3 space-y-3">
+
                 <h4 class="font-bold text-xs uppercase tracking-wider text-stone-400">Данные для заказа</h4>
 
                 <!-- На месте / С собой -->
@@ -428,7 +403,7 @@
             return '';
         };
 
-        async function fetchExtras() {
+                async function fetchExtras() {
             try {
                 const response = await fetch(EXTRAS_URL);
                 const text = await response.text();
@@ -436,11 +411,7 @@
                 if (!jsonMatch) return;
                 
                 const data = JSON.parse(jsonMatch[1]);
-                
-            } catch (e) {
-                console.error("Ошибка загрузки добавок:", e);
-            }
-                            allExtras = data.table.rows.map((row, index) => {
+                allExtras = data.table.rows.map((row, index) => {
                     const c = row.c;
                     if (!c) return null;
                     const priceRaw = getVal(c, 1);
@@ -454,8 +425,11 @@
                         active: activeRaw !== 'FALSE'
                     };
                 }).filter(e => e && e.name && e.active);
-
+            } catch (e) {
+                console.error("Ошибка загрузки добавок:", e);
+            }
         }
+
 
         async function fetchSpecials() {
             try {
@@ -937,14 +911,23 @@ function updateBannerDots(activeIndex) {
                 statusEl.classList.add('hidden');
                 statusEl.textContent = '';
             }
-            if (checkoutForm) {
+                        if (checkoutForm) {
                 if (cart.length > 0) {
                     checkoutForm.classList.remove('hidden');
                     initPickupTimeSelectors();
+                    try {
+                        const savedName = localStorage.getItem('yumbrik_customer_name');
+                        const savedPhone = localStorage.getItem('yumbrik_customer_phone');
+                        const nameInput = document.getElementById('customer-name');
+                        const phoneInput = document.getElementById('customer-phone');
+                        if (savedName && nameInput && !nameInput.value) nameInput.value = savedName;
+                        if (savedPhone && phoneInput && !phoneInput.value) phoneInput.value = savedPhone;
+                    } catch (e) {}
                 } else {
                     checkoutForm.classList.add('hidden');
                 }
             }
+
         }
 
         function changeCartQty(index, change) {
@@ -1143,22 +1126,27 @@ function resetFilters() {
 
         document.addEventListener('DOMContentLoaded', fetchMenuFromGoogleSheet);
     
-            const BOT_NAME = 'Yumbrik_Bot';
-
-        function buildCompactStartParam(pickupTime) {
                     const BOT_NAME = 'Yumbrik_Bot';
 
-        
-            // Формат: w_<режим:d|t>_<ЧЧММ>_<id>x<qty>.<id>x<qty>
+        function buildCompactStartParam(pickupTime) {
             const modeCode = orderMode === 'dinein' ? 'd' : 't';
             const timeCode = pickupTime.replace(':', '');
             const parts = cart.map(entry => {
                 const cleanId = String(entry.item.id).replace(/[^a-zA-Z0-9]/g, '');
-                return `${cleanId}x${entry.quantity}`;
+                let token = `${cleanId}x${entry.quantity}`;
+                if (entry.extras && entry.extras.length > 0) {
+                    const extraIds = entry.extras
+                        .map(e => String(e.id).replace(/[^a-zA-Z0-9]/g, ''))
+                        .filter(Boolean)
+                        .join('-');
+                    if (extraIds) token += `e${extraIds}`;
+                }
+                return token;
             });
             const payload = `w_${modeCode}_${timeCode}_${parts.join('.')}`;
             return payload.length <= 64 ? payload : 'from_web';
         }
+
 
         function buildHumanReadableOrder(pickupTime) {
             const modeLabel = orderMode === 'dinein' ? 'На месте' : 'С собой';
